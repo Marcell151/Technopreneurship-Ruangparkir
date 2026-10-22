@@ -46,13 +46,82 @@
         opacity: 1;
       }
     }
+    /* Phone mockup frame containment */
+    .phone-screen {
+      transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
+      contain: paint;
+    }
+
+    .phone-screen .min-h-screen {
+      min-height: 100%;
+    }
+
+    .phone-screen .h-screen {
+      height: 100%;
+    }
   </style>
 </head>
 
-<body class="flex justify-center items-center min-h-screen">
-  <!-- Container Mobile Prototype -->
-  <div id="app"
-    class="w-full max-w-md min-h-screen bg-slate-50 relative flex flex-col shadow-2xl overflow-x-hidden text-slate-800">
+<body class="bg-[#090d16] min-h-screen flex flex-col justify-center items-center p-0 sm:py-6 sm:px-4 antialiased overflow-x-hidden">
+  
+  <!-- Presentation Header on Desktop -->
+  <div class="hidden sm:flex items-center justify-between w-full max-w-[412px] mb-2 px-2 text-slate-400">
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="text-xs font-bold tracking-tight text-slate-200">RuangParkir</span>
+      <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700/60 font-mono">Mobile Prototype</span>
+    </div>
+    <span class="text-[11px] font-medium text-slate-400">Live Device View</span>
+  </div>
+
+  <!-- Outer Realistic Smartphone Mockup Frame -->
+  <div class="relative w-full sm:w-[412px] h-screen sm:h-[870px] sm:max-h-[94vh] bg-slate-900 sm:rounded-[54px] sm:p-[10px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.1),0_0_60px_rgba(16,185,129,0.06)] sm:ring-1 sm:ring-slate-800 flex flex-col justify-between transition-all">
+    
+    <!-- Phone Hardware Side Buttons (Desktop Only) -->
+    <div class="hidden sm:block absolute -left-[13px] top-28 w-[3px] h-8 bg-slate-700 rounded-l-xs"></div>
+    <div class="hidden sm:block absolute -left-[13px] top-40 w-[3px] h-12 bg-slate-700 rounded-l-xs"></div>
+    <div class="hidden sm:block absolute -left-[13px] top-56 w-[3px] h-12 bg-slate-700 rounded-l-xs"></div>
+    <div class="hidden sm:block absolute -right-[13px] top-36 w-[3px] h-16 bg-slate-700 rounded-r-xs"></div>
+
+    <!-- Phone Screen Bezel Inner Container -->
+    <div class="phone-screen relative w-full h-full bg-slate-50 sm:rounded-[44px] overflow-hidden flex flex-col shadow-inner">
+      
+      <!-- Top Dynamic Island & Status Bar -->
+      <div id="phone-status-bar" class="w-full bg-transparent absolute top-0 left-0 right-0 z-50 pointer-events-none px-6 pt-2.5 pb-2 flex justify-between items-center text-slate-800 text-[11px] font-semibold select-none transition-colors duration-200">
+        <!-- Live Clock Indicator -->
+        <span id="phone-clock" class="tracking-tight font-medium pl-1">09:41</span>
+        
+        <!-- Dynamic Island Hardware Pill -->
+        <div class="w-24 h-5 bg-black rounded-full flex items-center justify-end pr-2.5 shadow-sm">
+          <div class="w-2 h-2 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center">
+            <div class="w-0.5 h-0.5 bg-blue-950 rounded-full"></div>
+          </div>
+        </div>
+
+        <!-- System Icons (Signal, Wifi, Battery) -->
+        <div class="flex items-center gap-1.5 pr-1">
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M2 17h2v3H2zm4-3h2v6H6zm4-3h2v9h-2zm4-4h2v13h-2zm4-4h2v17h-2z"/></svg>
+          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0012 4zm0 4c3.34 0 6.43 1.14 8.92 3.05L12 19.77 3.08 11.05C5.57 9.14 8.66 8 12 8z"/></svg>
+          <div class="flex items-center">
+            <div class="w-5 h-2.5 border border-current rounded-xs p-0.5 flex items-center">
+              <div class="h-full w-full bg-current rounded-2xs"></div>
+            </div>
+            <div class="w-0.5 h-1 bg-current rounded-r-2xs ml-0.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- App Screen Content (Scrollable Inner Container) -->
+      <div id="app" class="w-full h-full overflow-y-auto overflow-x-hidden hide-scrollbar relative flex flex-col text-slate-800 pt-7">
+      </div>
+
+      <!-- Bottom Home Indicator Bar (iOS Gesture Bar) -->
+      <div class="absolute bottom-1 left-0 right-0 z-50 pointer-events-none flex justify-center pb-1">
+        <div id="phone-home-indicator" class="w-32 h-1 bg-slate-900/30 rounded-full transition-colors duration-200"></div>
+      </div>
+
+    </div>
   </div>
 
   <script>
@@ -283,6 +352,8 @@
     function setScreen(screenName) {
       state.currentScreen = screenName;
       window.scrollTo(0, 0);
+      const appEl = document.getElementById('app');
+      if (appEl) appEl.scrollTo({ top: 0, behavior: 'instant' });
       render();
     }
 
@@ -345,7 +416,7 @@
     function renderGlobalHeader() {
       if (['SPLASH', 'LOGIN'].includes(state.currentScreen)) return '';
       return `
-        <div class="fixed top-2.5 right-3 z-50">
+        <div class="fixed top-9 right-3 z-40">
           <div class="bg-slate-900/90 backdrop-blur-md text-white text-[11px] font-semibold p-1 rounded-full shadow-lg border border-slate-700/80 flex items-center gap-0.5">
             <button onclick="setUserRole('DRIVER')" class="px-2.5 py-1 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${state.userRole === 'DRIVER' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'}">
               <span class="scale-90">${Icons.car}</span>
@@ -368,7 +439,7 @@
     function renderToast() {
       if (!state.toastMsg) return '';
       return `
-        <div class="fixed top-4 left-4 right-4 max-w-md mx-auto z-50 pointer-events-none transition-all">
+        <div class="fixed top-11 left-3 right-3 z-50 pointer-events-none transition-all">
           <div class="bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-3">
             <span class="w-5 h-5 rounded-full bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs">
               ${Icons.check}
@@ -2281,12 +2352,47 @@
           content = renderHome();
       }
 
-      app.innerHTML = `
+            app.innerHTML = `
         ${renderGlobalHeader()}
         ${renderToast()}
         ${content}
       `;
+
+      // Update phone status bar & gesture bar theme
+      const isDark = ['ATTENDANT', 'ATTENDANT_LOGS'].includes(state.currentScreen);
+      const statusBar = document.getElementById('phone-status-bar');
+      const homeBar = document.getElementById('phone-home-indicator');
+      if (statusBar) {
+        if (isDark) {
+          statusBar.classList.remove('text-slate-800');
+          statusBar.classList.add('text-white');
+        } else {
+          statusBar.classList.remove('text-white');
+          statusBar.classList.add('text-slate-800');
+        }
+      }
+      if (homeBar) {
+        if (isDark) {
+          homeBar.className = 'w-32 h-1 bg-white/40 rounded-full transition-colors duration-200';
+        } else {
+          homeBar.className = 'w-32 h-1 bg-slate-900/30 rounded-full transition-colors duration-200';
+        }
+      }
     }
+
+
+    // Live Phone Clock Indicator
+    function updatePhoneClock() {
+      const el = document.getElementById('phone-clock');
+      if (el) {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        el.textContent = `${h}:${m}`;
+      }
+    }
+    setInterval(updatePhoneClock, 1000);
+    updatePhoneClock();
 
     // Initial Execution
     render();
