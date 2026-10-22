@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>RuangParkir - Marketplace Parkir Komunitas Warga</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <style>
+    body {
+      background-color: #090d16;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 1.25rem);
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .scan-line {
+      animation: scanMove 2s infinite ease-in-out;
+    }
+
+    @keyframes scanMove {
+
+      0%,
+      100% {
+        top: 8%;
+        opacity: 0.3;
+      }
+
+      50% {
+        top: 88%;
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body class="flex justify-center items-center min-h-screen">
+  <!-- Container Mobile Prototype -->
+  <div id="app"
+    class="w-full max-w-md min-h-screen bg-slate-50 relative flex flex-col shadow-2xl overflow-x-hidden text-slate-800">
+  </div>
+
+  <script>
+    // Asset Logo
+    const LOGO_SRC = "https://lh3.googleusercontent.com/aida-public/AB6AXuDtj-AwGodH_7Q1iql6_v977VgL8mlHR6-rDJaTDTD-GtkPcAYjlICMUxL2AqCc2ts_bHxXdfChm2yWFlp6rrbiJ256jQsle-kLm6s1zdj0-jtcvwQDzZHJArHlXt_QKCaUg9QNXCJLDWJtXMy_epJk2elV5bQiW24OJ8VhsBo-zZZzlW0dcd185bEgTY-sOTx24ZOxonQipsh44upbdMKbBTY7OjNSSWKRbiUZTMPqPwci5AUoF39YnrEl8GFpwhb3SQ";
+
+    // Master Data Titik Garasi Warga
+    let myGarages = [
+      {
+        id: '1',
+        name: 'Garasi Pak Budi - Suhat',
+        address: 'Jl. Soekarno Hatta No. 45, Lowokwaru, Malang',
+        slotsCar: 4,
+        slotsBike: 8,
+        occupiedCar: 2,
+        occupiedBike: 1,
+        priceFlatCar: 8000,
+        priceFlatBike: 3000,
+        isOpen: true
+      }
+    ];
+
+    const SPOTS = [
+      {
+        id: '1',
+        name: 'Garasi Pak Budi - Soekarno Hatta No. 45',
+        shortName: 'Garasi Pak Budi',
+        category: 'Mobil',
+        address: 'Jl. Soekarno Hatta No. 45, Lowokwaru, Malang',
+        distance: '200m',
+        distanceNum: 200,
+        availableSlots: 2,
+        totalSlots: 4,
+        rating: 4.9,
+        reviews: 128,
+        priceMotor: 3000,
+        priceMobil: 8000,
+        isFull: false,
+        jukirName: 'Slamet Riyadi (ID: JK-04)',
+        facilities: ['CCTV 24 Jam', 'Kanopi Beratap', 'Akses Jalan Lebar', 'Dijaga Jukir'],
+        photo: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=600&auto=format&fit=crop&q=80'
+      },
+      {
+        id: '2',
+        name: 'Garasi Bu Rina - Borobudur Barat No. 15',
+        shortName: 'Garasi Bu Rina',
+        category: 'Mobil',
+        address: 'Jl. Candi Borobudur Barat No. 15, Blimbing, Malang',
+        distance: '450m',
+        distanceNum: 450,
+        availableSlots: 1,
+        totalSlots: 3,
+        rating: 4.8,
+        reviews: 42,
+        priceMotor: 3000,
+        priceMobil: 8000,
+        isFull: false,
+        jukirName: 'Agus Santoso (ID: JK-09)',
+        facilities: ['Dijaga Jukir', 'Akses 24 Jam', 'Lantai Paving'],
+        photo: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600&auto=format&fit=crop&q=80'
+      },
+      {
+        id: '3',
+        name: 'Lahan Parkir Warga Merbabu No. 8',
+        shortName: 'Lahan Merbabu',
+        category: 'Motor',
+        address: 'Jl. Merbabu No. 8, Klojen, Malang',
+        distance: '650m',
+        distanceNum: 650,
+        availableSlots: 6,
+        totalSlots: 10,
+        rating: 4.7,
+        reviews: 31,
+        priceMotor: 3000,
+        priceMobil: 8000,
+        isFull: false,
+        jukirName: 'Bambang Irawan (ID: JK-12)',
+        facilities: ['Khusus Roda Dua', 'Penerangan Terang', 'Dekat Pusat Kuliner'],
+        photo: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&auto=format&fit=crop&q=80'
+      }
+    ];
+
+
+    // DEMO ACCOUNTS PRESET UNTUK EVALUASI MULTI-SIDED RBAC
+    const DEMO_ACCOUNTS = {
+      DRIVER: {
+        role: 'DRIVER',
+        name: 'Budi Santoso',
+        phone: '0812-9876-5432',
+        identifier: '081298765432',
+        email: 'budi.santoso@gmail.com',
+        avatarText: 'BS',
+        subtitle: 'Pengemudi Mobil & Motor (Plat N 1234 ABC)'
+      },
+      LANDOWNER: {
+        role: 'LANDOWNER',
+        name: 'Pak Budi (Garasi Wijaya)',
+        phone: '0811-2233-4455',
+        identifier: '081122334455',
+        email: 'garasi.wijaya@gmail.com',
+        avatarText: 'BW',
+        subtitle: 'Mitra Pemilik Lahan (Garasi Soehat No. 45)'
+      },
+      ATTENDANT: {
+        role: 'ATTENDANT',
+        name: 'Pak Slamet Riyadi',
+        phone: '0878-9988-7766',
+        identifier: '087899887766',
+        email: 'slamet.pos01@gmail.com',
+        avatarText: 'SR',
+        subtitle: 'Petugas Jukir Lapangan (Pos 01 Soekarno Hatta)'
+      }
+    };
+
+    // CENTRAL APPLICATION STATE
+    const state = {
+      currentScreen: 'SPLASH', // SPLASH, LOGIN, HOME, DETAIL, CHECKOUT, TICKET, DRIVER_HISTORY, LANDOWNER, LANDOWNER_MANAGE, ATTENDANT, ATTENDANT_LOGS, PROFILE
+      userRole: 'DRIVER', // DRIVER | LANDOWNER | ATTENDANT
+
+      // Auth & Login State
+      currentUser: DEMO_ACCOUNTS.DRIVER,
+      loginRole: 'DRIVER', // 'DRIVER' | 'LANDOWNER' | 'ATTENDANT'
+      loginIdentifier: '081298765432',
+      loginPassword: '••••••••',
+      showPassword: false,
+      rememberMe: true,
+      registerModal: false, // DRIVER | LANDOWNER | ATTENDANT
+
+      // Filter & Search Peta
+      searchQuery: '',
+      activeFilter: 'Semua', // 'Semua', 'Mobil', 'Motor', 'Tersedia'
+      bookmarkedSpots: ['1'],
+
+      // Driver State
+      walletBalance: 50000,
+      selectedSpot: SPOTS[0],
+      vehicleType: 'MOBIL', // MOBIL | MOTOR
+      plateNumber: 'N 1234 ABC',
+      plannedDuration: 5, // Estimasi rencana parkir pengguna
+      paymentMethod: 'SALDO', // SALDO | QRIS | VA
+      promoCode: '',
+      discountAmount: 0,
+      toastMsg: null,
+
+      // Modals
+      topUpModal: false,
+      withdrawModal: false,
+      overstayModal: false,
+      addGarageModal: false,
+      scannerModal: false,
+      faqModal: false,
+
+      // Tiket & Argometer Real-time
+      ticketStatus: 'WAITING_CHECKIN', // WAITING_CHECKIN | ACTIVE | FINISHED
+      parkingSecondsElapsed: 6300, // 1 Jam 45 Menit (simulasi demo argometer)
+      activeBooking: {
+        code: 'RP-88291',
+        spotName: 'Garasi Pak Budi - Soekarno Hatta No. 45',
+        plate: 'N 1234 ABC',
+        slot: 'Slot A-02',
+        vehicle: 'MOBIL',
+        plannedDuration: 5,
+        depositPaid: 8000,
+        overstayPaid: 0,
+        checkInTime: null,
+        paymentMethod: 'SALDO'
+      },
+
+      // Overstay Scenario Demo Evaluasi Keluar
+      overstayScenario: 'scenario_1h45m', // scenario_1h45m | scenario_4h | scenario_5h | scenario_6h
+
+      // Pemilik Lahan State
+      isGarageOpen: true,
+      landownerBalance: 340000,
+      todayRevenue: 72000,
+      parkedVehicles: [
+        { plate: 'B 4410 KLA', type: 'Honda HR-V Putih', slot: 'Slot A-01', durationNow: '01:45:00', durationSec: 6300, note: 'Paket Flat 3 Jam', status: 'ACTIVE' },
+        { plate: 'N 8892 XY', type: 'Vario 160 Merah', slot: 'Slot M-01', durationNow: '00:30:10', durationSec: 1810, note: 'Paket Flat 3 Jam', status: 'ACTIVE' }
+      ],
+
+      // Juru Parkir State
+      attendantEarningsToday: 48000,
+      totalVehiclesManagedToday: 14,
+
+      // Riwayat Driver
+      historyList: [
+        { code: 'RP-77102', spot: 'Garasi Bu Rina', vehicle: 'MOBIL', plate: 'N 1234 ABC', date: 'Kemarin, 14:00', duration: '2 Jam (Flat)', deposit: 8000, overstay: 0, cost: 8000, status: 'Selesai' },
+        { code: 'RP-65901', spot: 'Garasi Pak Budi', vehicle: 'MOTOR', plate: 'N 8892 XY', date: '12 Okt 2024', duration: '4 Jam (+1 Jam)', deposit: 3000, overstay: 1000, cost: 4000, status: 'Selesai' }
+      ]
+    };
+
+    // Live Argometer Loop
+    setInterval(() => {
+      if (state.ticketStatus === 'ACTIVE') {
+        state.parkingSecondsElapsed++;
+        const el = document.getElementById('ticket-live-timer');
+        if (el) el.innerText = formatDuration(state.parkingSecondsElapsed);
+      }
+    }, 1000);
+
+    // FORMATTERS & HELPERS
+    function formatIDR(num) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num || 0);
+    }
+
+    function formatDuration(sec) {
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function getBaseDepositPrice(vehicleType) {
+      return vehicleType === 'MOTOR' ? 3000 : 8000;
+    }
+
+    function showToast(msg) {
+      state.toastMsg = msg;
+      render();
+      setTimeout(() => {
+        if (state.toastMsg === msg) {
+          state.toastMsg = null;
+          render();
+        }
+      }, 3000);
+    }
+
+    function setScreen(screenName) {
+      state.currentScreen = screenName;
+      window.scrollTo(0, 0);
+      render();
+    }
+
+    function setUserRole(role) {
+      state.userRole = role;
+      if (role === 'DRIVER') {
+        state.currentScreen = 'HOME';
+        showToast('Beralih ke mode Pengemudi');
+      } else if (role === 'LANDOWNER') {
+        state.currentScreen = 'LANDOWNER';
+        showToast('Beralih ke portal Pemilik Lahan');
+      } else if (role === 'ATTENDANT') {
+        state.currentScreen = 'ATTENDANT';
+        showToast('Beralih ke terminal Juru Parkir');
+      }
+      render();
+    }
+
+    // MINIMALIST SVG ICON LIBRARY (LUCIDE STYLE, MONOCHROME & CLEAN)
+    const Icons = {
+      arrowLeft: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>`,
+      arrowRight: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`,
+      chevronRight: `<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`,
+      mapPin: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4.418-5.836-8-9.836-8-13a8 8 0 1116 0c0 3.164-3.582 7.164-8 13z"/><circle cx="12" cy="8" r="2.5"/></svg>`,
+      car: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 17a2 2 0 104 0 2 2 0 00-4 0zm10 0a2 2 0 104 0 2 2 0 00-4 0zM3 13h18M5 13l2.2-5.5A2 2 0 019 6h6a2 2 0 011.8 1.5L19 13M3 13v4h2m14 0h2v-4"/></svg>`,
+      bike: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 6h2m-2 0l-3.5 6-3.5-6H5m7 6v5.5"/></svg>`,
+      clock: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>`,
+      shield: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>`,
+      wallet: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`,
+      ticket: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 010 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 010-4V7a2 2 0 00-2-2H5z"/></svg>`,
+      home: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg>`,
+      building: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>`,
+      history: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+      user: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`,
+      userCheck: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>`,
+      scan: `<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2m-10 0H5a2 2 0 01-2-2v-2"/></svg>`,
+      list: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>`,
+      chart: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 20V10M12 20V4M6 20v-6"/></svg>`,
+      search: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"/></svg>`,
+      filter: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4h18M6 10h12M9 16h6"/></svg>`,
+      check: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`,
+      plus: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>`,
+      minus: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>`,
+      close: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`,
+      navigation: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>`,
+      star: `<svg class="w-3.5 h-3.5 fill-amber-400 stroke-amber-400" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+      info: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+      bookmark: `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>`,
+      bookmarkFilled: `<svg class="w-4 h-4 fill-emerald-600 stroke-emerald-600" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>`,
+      helpCircle: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3m0 4h.01"/></svg>`,
+      lock: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 11V7a5 5 0 0110 0v4"/></svg>`,
+      eye: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+      eyeOff: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+      phone: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>`,
+      fingerprint: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 00-6.88 17.23M12 6a6 6 0 00-4.24 10.24M12 10a2 2 0 00-1.41 3.41M12 14v.01M16.24 7.76A6 6 0 0118 12c0 2.21-.89 4.21-2.34 5.66M18.88 4.77A10 10 0 0122 12c0 3.31-1.34 6.31-3.51 8.49"/></svg>`,
+      logOut: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>`
+    };
+
+    // FLOATING CLEAN ROLE SWITCHER (MINIMALIST & PROFESSIONAL)
+    function renderGlobalHeader() {
+      if (['SPLASH', 'LOGIN'].includes(state.currentScreen)) return '';
+      return `
+        <div class="fixed top-2.5 right-3 z-50">
+          <div class="bg-slate-900/90 backdrop-blur-md text-white text-[11px] font-semibold p-1 rounded-full shadow-lg border border-slate-700/80 flex items-center gap-0.5">
+            <button onclick="setUserRole('DRIVER')" class="px-2.5 py-1 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${state.userRole === 'DRIVER' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'}">
+              <span class="scale-90">${Icons.car}</span>
+              <span>Driver</span>
+            </button>
+            <button onclick="setUserRole('LANDOWNER')" class="px-2.5 py-1 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${state.userRole === 'LANDOWNER' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'}">
+              <span class="scale-90">${Icons.building}</span>
+              <span>Pemilik</span>
+            </button>
+            <button onclick="setUserRole('ATTENDANT')" class="px-2.5 py-1 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${state.userRole === 'ATTENDANT' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'}">
+              <span class="scale-90">${Icons.userCheck}</span>
+              <span>Jukir</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // TOAST NOTIFICATION
+    function renderToast() {
+      if (!state.toastMsg) return '';
+      return `
+        <div class="fixed top-4 left-4 right-4 max-w-md mx-auto z-50 pointer-events-none transition-all">
+          <div class="bg-slate-900/95 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-3">
+            <span class="w-5 h-5 rounded-full bg-emerald-600/20 text-emerald-400 flex items-center justify-center shrink-0 text-xs">
+              ${Icons.check}
+            </span>
+            <span class="text-xs font-medium leading-snug">${state.toastMsg}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // BOTTOM NAVIGATION (CLEAN PRODUCTION APP STYLE)
+    function renderBottomNav(activeTab) {
+      if (state.userRole === 'DRIVER') {
+        return `
+          <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 pb-safe pt-2 px-4 flex justify-around items-center text-slate-400 z-40 shadow-[0_-4px_16px_rgba(0,0,0,0.03)]">
+            <button onclick="setScreen('HOME')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'HOME' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              ${Icons.home}
+              <span class="text-[10px]">Cari Parkir</span>
+            </button>
+            <button onclick="setScreen('TICKET')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'TICKET' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              <div class="relative">
+                ${Icons.ticket}
+                <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full ${state.ticketStatus === 'ACTIVE' ? 'bg-emerald-500' : (state.ticketStatus === 'WAITING_CHECKIN' ? 'bg-amber-500' : 'hidden')}"></span>
+              </div>
+              <span class="text-[10px]">E-Tiket</span>
+            </button>
+            <button onclick="setScreen('DRIVER_HISTORY')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'DRIVER_HISTORY' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              ${Icons.history}
+              <span class="text-[10px]">Aktivitas</span>
+            </button>
+            <button onclick="setScreen('PROFILE')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'PROFILE' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              ${Icons.user}
+              <span class="text-[10px]">Akun</span>
+            </button>
+          </nav>
+        `;
+      } else if (state.userRole === 'LANDOWNER') {
+        return `
+          <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 pb-safe pt-2 px-3 flex justify-around items-center text-slate-400 z-40 shadow-[0_-4px_16px_rgba(0,0,0,0.03)]">
+            <button onclick="setScreen('LANDOWNER')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'LANDOWNER' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              ${Icons.chart}
+              <span class="text-[10px]">Ringkasan</span>
+            </button>
+            <button onclick="setScreen('LANDOWNER_MANAGE')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'LANDOWNER_MANAGE' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              <div class="relative">
+                ${Icons.building}
+                <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500"></span>
+              </div>
+              <span class="text-[10px]">Kelola Lahan</span>
+            </button>
+            <button onclick="state.withdrawModal = true; render();" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer hover:text-slate-700">
+              ${Icons.wallet}
+              <span class="text-[10px]">Tarik Dana</span>
+            </button>
+            <button onclick="setScreen('PROFILE')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'PROFILE' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              ${Icons.user}
+              <span class="text-[10px]">Akun Mitra</span>
+            </button>
+          </nav>
+        `;
+      } else if (state.userRole === 'ATTENDANT') {
+        return `
+          <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 pb-safe pt-2 px-6 flex justify-around items-center text-slate-400 z-40 shadow-[0_-4px_16px_rgba(0,0,0,0.03)]">
+            <button onclick="setScreen('ATTENDANT')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'ATTENDANT' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              ${Icons.scan}
+              <span class="text-[10px]">Pos Scanner</span>
+            </button>
+            <button onclick="setScreen('ATTENDANT_LOGS')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'ATTENDANT_LOGS' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              ${Icons.list}
+              <span class="text-[10px]">Log Lapangan</span>
+            </button>
+            <button onclick="setScreen('PROFILE')" class="flex flex-col items-center py-1 gap-1 transition-colors cursor-pointer ${activeTab === 'PROFILE' ? 'text-emerald-600 font-bold' : 'hover:text-slate-700'}">
+              ${Icons.user}
+              <span class="text-[10px]">Profil Pos</span>
+            </button>
+          </nav>
+        `;
+      }
+      return '';
+    }
+
+    // ==========================================
+    // SCREEN 1: SPLASH (MINIMALIST FINTECH/MOBILITY AESTHETIC)
+    // ==========================================
+    function renderSplash() {
+      return `
+        <div class="flex flex-col justify-between min-h-screen bg-white p-7" id="screen-splash">
+          <div class="w-full flex justify-between items-center pt-2">
+            <span class="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">Community Parking Platform</span>
+            <span class="text-[11px] font-mono font-medium text-slate-400">v3.0 Production</span>
+          </div>
+
+          <div class="flex flex-col items-center text-center my-auto py-8">
+            <div class="w-24 h-24 mb-5 p-3 bg-slate-50 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-center">
+              <img src="${LOGO_SRC}" alt="RuangParkir" class="w-full h-full object-contain">
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-600">${Icons.mapPin}</span>
+              <h1 class="text-3xl font-black text-slate-900 tracking-tight">RuangParkir</h1>
+            </div>
+
+            <p class="text-slate-500 text-sm font-normal max-w-[280px] leading-relaxed mt-2.5">
+              Aplikasi marketplace lahan parkir warga dengan sistem reservasi deposit dan juru parkir terpadu.
+            </p>
+
+            <div class="mt-8 grid grid-cols-3 gap-2 w-full max-w-xs text-left">
+              <div class="p-2.5 bg-slate-50 border border-slate-100 rounded-2xl">
+                <div class="text-emerald-600 mb-1">${Icons.shield}</div>
+                <div class="text-[11px] font-bold text-slate-800">Aman & Resmi</div>
+                <div class="text-[9px] text-slate-400">Mitra terverifikasi</div>
+              </div>
+              <div class="p-2.5 bg-slate-50 border border-slate-100 rounded-2xl">
+                <div class="text-emerald-600 mb-1">${Icons.clock}</div>
+                <div class="text-[11px] font-bold text-slate-800">Flat 3 Jam</div>
+                <div class="text-[9px] text-slate-400">Tanpa tarif tembak</div>
+              </div>
+              <div class="p-2.5 bg-slate-50 border border-slate-100 rounded-2xl">
+                <div class="text-emerald-600 mb-1">${Icons.userCheck}</div>
+                <div class="text-[11px] font-bold text-slate-800">Jukir Resmi</div>
+                <div class="text-[9px] text-slate-400">QC & kerapian</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full space-y-2.5 pb-2">
+            <button onclick="setScreen('LOGIN')" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-base transition flex items-center justify-center gap-2 cursor-pointer shadow-md">
+              <span>Masuk ke Akun</span>
+              <span>${Icons.arrowRight}</span>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="state.registerModal = true; setScreen('LOGIN');" class="h-12 bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-800 rounded-xl font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 border border-slate-200 shadow-xs">
+                <span>${Icons.userCheck}</span>
+                <span>Daftar Akun Baru</span>
+              </button>
+              <button onclick="setUserRole('DRIVER')" class="h-12 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 rounded-xl font-medium text-xs transition cursor-pointer flex items-center justify-center gap-1.5 border border-slate-200">
+                <span>${Icons.car}</span>
+                <span>Mode Tamu</span>
+              </button>
+            </div>
+            <div class="pt-2 text-center">
+              <span class="text-[10px] text-slate-400 block mb-1.5 font-medium uppercase tracking-wider">Akses Cepat Mode Demo:</span>
+              <div class="flex justify-center gap-1.5">
+                <button onclick="setUserRole('DRIVER')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold cursor-pointer transition">Pengemudi</button>
+                <button onclick="setUserRole('LANDOWNER')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold cursor-pointer transition">Pemilik Lahan</button>
+                <button onclick="setUserRole('ATTENDANT')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold cursor-pointer transition">Juru Parkir</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+
+    // ==========================================
+    // AUTHENTICATION & LOGIN LOGIC
+    // ==========================================
+    function selectLoginPreset(roleKey) {
+      state.loginRole = roleKey;
+      const acc = DEMO_ACCOUNTS[roleKey];
+      state.loginIdentifier = acc.identifier;
+      state.loginPassword = '••••••••';
+      render();
+    }
+
+    function togglePasswordVisibility() {
+      state.showPassword = !state.showPassword;
+      render();
+    }
+
+    function handleLoginSubmit() {
+      const acc = DEMO_ACCOUNTS[state.loginRole];
+      state.userRole = state.loginRole;
+      state.currentUser = {
+        name: acc.name,
+        phone: acc.phone,
+        email: acc.email,
+        role: state.loginRole
+      };
+
+      showToast(`Berhasil masuk sebagai ${acc.name}`);
+
+      if (state.loginRole === 'DRIVER') {
+        setScreen('HOME');
+      } else if (state.loginRole === 'LANDOWNER') {
+        setScreen('LANDOWNER');
+      } else if (state.loginRole === 'ATTENDANT') {
+        setScreen('ATTENDANT');
+      }
+    }
+
+    function handleBiometricLogin() {
+      showToast('Memverifikasi Biometrik (Face ID / Sidik Jari)...');
+      setTimeout(() => {
+        handleLoginSubmit();
+      }, 700);
+    }
+
+    function handleRegisterSubmit() {
+      state.registerModal = false;
+      const roleInputs = document.getElementsByName('reg-role');
+      let selected = 'DRIVER';
+      for (const r of roleInputs) {
+        if (r.checked) selected = r.value;
+      }
+      selectLoginPreset(selected);
+      showToast('Registrasi berhasil! Akun Anda aktif.');
+      handleLoginSubmit();
+    }
+
+    function renderRegisterModal() {
+      if (!state.registerModal) return '';
+      return `
+        <div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div class="w-full max-w-md bg-white rounded-t-3xl sm:rounded-2xl p-6 space-y-4 shadow-2xl border border-slate-100 animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  ${Icons.userCheck}
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-900 text-sm">Registrasi Akun Baru</h3>
+                  <p class="text-[10px] text-slate-400">Pendaftaran Pengemudi & Mitra Warga</p>
+                </div>
+              </div>
+              <button onclick="state.registerModal = false; render();" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer">
+                ${Icons.close}
+              </button>
+            </div>
+
+            <div class="space-y-3 pt-1">
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-700">Nama Lengkap</label>
+                <input type="text" id="reg-name" placeholder="Nama sesuai KTP" value="Marcellino Pratama" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-slate-900 focus:outline-none">
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-700">Nomor WhatsApp / HP</label>
+                <input type="text" id="reg-phone" placeholder="0857xxxxxxx" value="085712345678" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-slate-900 focus:outline-none">
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-700">Pilih Tipe Pendaftaran</label>
+                <div class="grid grid-cols-3 gap-1.5 pt-0.5">
+                  <label class="flex flex-col items-center p-2 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-slate-900 has-checked:bg-slate-50">
+                    <input type="radio" name="reg-role" value="DRIVER" checked class="sr-only">
+                    <span class="text-xs">${Icons.car}</span>
+                    <span class="text-[10px] font-bold text-slate-800 mt-1">Pengemudi</span>
+                  </label>
+                  <label class="flex flex-col items-center p-2 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-slate-900 has-checked:bg-slate-50">
+                    <input type="radio" name="reg-role" value="LANDOWNER" class="sr-only">
+                    <span class="text-xs">${Icons.building}</span>
+                    <span class="text-[10px] font-bold text-slate-800 mt-1">Mitra Lahan</span>
+                  </label>
+                  <label class="flex flex-col items-center p-2 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-slate-900 has-checked:bg-slate-50">
+                    <input type="radio" name="reg-role" value="ATTENDANT" class="sr-only">
+                    <span class="text-xs">${Icons.userCheck}</span>
+                    <span class="text-[10px] font-bold text-slate-800 mt-1">Mitra Jukir</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-slate-700">Plat Nomor / Nama Garasi</label>
+                <input type="text" id="reg-detail" placeholder="Contoh: N 5544 ZZZ atau Garasi Mawar" value="N 5544 ZZZ" class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-slate-900 focus:outline-none">
+              </div>
+
+              <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-2">
+                <span class="text-emerald-600 mt-0.5">${Icons.shield}</span>
+                <p class="text-[10px] text-emerald-800 leading-relaxed">
+                  Data pendaftaran terintegrasi langsung dengan verifikasi identitas dan proteksi keamanan parkir warga.
+                </p>
+              </div>
+
+              <button onclick="handleRegisterSubmit()" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+                <span>Daftar & Masuk Otomatis</span>
+                <span>${Icons.arrowRight}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // SCREEN: LOGIN (AUTHENTICATION & RBAC SELECTION)
+    // ==========================================
+    function renderLogin() {
+      const activeRole = state.loginRole || 'DRIVER';
+      const isDriver = activeRole === 'DRIVER';
+      const isLandowner = activeRole === 'LANDOWNER';
+      const isAttendant = activeRole === 'ATTENDANT';
+      const currentAcc = DEMO_ACCOUNTS[activeRole];
+
+      return `
+        <div class="flex flex-col min-h-screen bg-white" id="screen-login">
+          <!-- Top Bar Navigasi -->
+          <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-5 py-3.5 flex items-center justify-between border-b border-slate-100">
+            <button onclick="setScreen('SPLASH')" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 active:scale-95 transition cursor-pointer">
+              ${Icons.arrowLeft}
+            </button>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold tracking-wide text-slate-500 uppercase">Masuk Akun</span>
+            </div>
+            <button onclick="state.faqModal = true; render();" class="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-600 transition cursor-pointer">
+              ${Icons.helpCircle}
+            </button>
+          </div>
+
+          <div class="flex-1 px-6 pt-5 pb-8 flex flex-col justify-between">
+            <div class="space-y-6">
+              <!-- Brand Identity -->
+              <div class="flex items-center gap-3.5">
+                <div class="w-14 h-14 p-2 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center shadow-xs">
+                  <img src="${LOGO_SRC}" alt="RuangParkir" class="w-full h-full object-contain">
+                </div>
+                <div>
+                  <h1 class="text-2xl font-black text-slate-900 tracking-tight">Selamat Datang</h1>
+                  <p class="text-xs text-slate-500 mt-0.5">Masuk untuk melanjutkan ke sistem RuangParkir</p>
+                </div>
+              </div>
+
+              <!-- Segmented Role Selector -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pilih Peran Akun</span>
+                  <span class="text-[10px] text-emerald-600 font-semibold">RBAC Multi-Sided</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200/80">
+                  <button onclick="selectLoginPreset('DRIVER')" class="py-2.5 px-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition cursor-pointer ${isDriver ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+                    <span>${Icons.car}</span>
+                    <span class="text-[11px]">Pengemudi</span>
+                  </button>
+                  <button onclick="selectLoginPreset('LANDOWNER')" class="py-2.5 px-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition cursor-pointer ${isLandowner ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+                    <span>${Icons.building}</span>
+                    <span class="text-[11px]">Pemilik Lahan</span>
+                  </button>
+                  <button onclick="selectLoginPreset('ATTENDANT')" class="py-2.5 px-2 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition cursor-pointer ${isAttendant ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}">
+                    <span>${Icons.userCheck}</span>
+                    <span class="text-[11px]">Juru Parkir</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Role Context Card -->
+              <div class="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-emerald-600 shrink-0 font-bold text-xs">
+                  ${isDriver ? Icons.car : (isLandowner ? Icons.building : Icons.userCheck)}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-slate-800">${currentAcc.name}</span>
+                    <span class="text-[9px] bg-emerald-50 text-emerald-700 font-semibold px-1.5 py-0.2 rounded border border-emerald-100">Terverifikasi</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 truncate mt-0.5">${currentAcc.subtitle}</div>
+                </div>
+              </div>
+
+              <!-- Form Input -->
+              <div class="space-y-4 pt-1">
+                <div class="space-y-1.5">
+                  <label class="block text-xs font-bold text-slate-700">Nomor Handphone / Email</label>
+                  <div class="relative flex items-center">
+                    <span class="absolute left-3.5 text-slate-400 pointer-events-none">${Icons.phone}</span>
+                    <input 
+                      type="text" 
+                      id="login-identifier-input" 
+                      value="${state.loginIdentifier}" 
+                      oninput="state.loginIdentifier = this.value" 
+                      placeholder="Contoh: 081234567890" 
+                      class="w-full h-12 pl-11 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm font-medium focus:bg-white focus:border-slate-900 focus:outline-none transition shadow-2xs"
+                    />
+                  </div>
+                </div>
+
+                <div class="space-y-1.5">
+                  <div class="flex justify-between items-center">
+                    <label class="block text-xs font-bold text-slate-700">PIN Keamanan / Kata Sandi</label>
+                    <button type="button" onclick="showToast('Tautan reset PIN dikirim via WhatsApp ke nomor Anda')" class="text-xs text-emerald-600 font-semibold hover:underline cursor-pointer">Lupa PIN?</button>
+                  </div>
+                  <div class="relative flex items-center">
+                    <span class="absolute left-3.5 text-slate-400 pointer-events-none">${Icons.lock}</span>
+                    <input 
+                      type="${state.showPassword ? 'text' : 'password'}" 
+                      id="login-password-input" 
+                      value="${state.loginPassword}" 
+                      oninput="state.loginPassword = this.value" 
+                      placeholder="Masukkan 6-digit PIN" 
+                      class="w-full h-12 pl-11 pr-11 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm font-medium tracking-wide focus:bg-white focus:border-slate-900 focus:outline-none transition shadow-2xs"
+                    />
+                    <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3.5 text-slate-400 hover:text-slate-600 cursor-pointer">
+                      ${state.showPassword ? Icons.eyeOff : Icons.eye}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" ${state.rememberMe ? 'checked' : ''} onchange="state.rememberMe = this.checked" class="w-4 h-4 rounded text-slate-900 focus:ring-slate-900 border-slate-300">
+                    <span class="text-xs text-slate-600">Ingat akun di perangkat ini</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Quick Demo Autofill Bar -->
+              <div class="pt-2">
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">Preset Akun Pengujian (1-Klik):</span>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="selectLoginPreset('DRIVER')" class="p-2 rounded-xl text-left border transition cursor-pointer ${isDriver ? 'bg-slate-50 border-slate-900 ring-1 ring-slate-900' : 'bg-white border-slate-200 hover:border-slate-300'}">
+                    <div class="text-[11px] font-bold text-slate-900 truncate">Budi Santoso</div>
+                    <div class="text-[9px] text-slate-500">Driver Mobil</div>
+                  </button>
+                  <button onclick="selectLoginPreset('LANDOWNER')" class="p-2 rounded-xl text-left border transition cursor-pointer ${isLandowner ? 'bg-slate-50 border-slate-900 ring-1 ring-slate-900' : 'bg-white border-slate-200 hover:border-slate-300'}">
+                    <div class="text-[11px] font-bold text-slate-900 truncate">Pak Budi</div>
+                    <div class="text-[9px] text-slate-500">Mitra Garasi</div>
+                  </button>
+                  <button onclick="selectLoginPreset('ATTENDANT')" class="p-2 rounded-xl text-left border transition cursor-pointer ${isAttendant ? 'bg-slate-50 border-slate-900 ring-1 ring-slate-900' : 'bg-white border-slate-200 hover:border-slate-300'}">
+                    <div class="text-[11px] font-bold text-slate-900 truncate">Pak Slamet</div>
+                    <div class="text-[9px] text-slate-500">Juru Parkir</div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit CTA & Secondary Actions -->
+            <div class="space-y-3 pt-6">
+              <button onclick="handleLoginSubmit()" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-base transition flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                <span>Masuk Sekarang</span>
+                <span>${Icons.arrowRight}</span>
+              </button>
+
+              <div class="text-center pt-2">
+                <span class="text-xs text-slate-500">Belum memiliki akun terdaftar?</span>
+                <button onclick="state.registerModal = true; render();" class="text-xs font-bold text-emerald-600 hover:underline ml-1 cursor-pointer">Daftar Sekarang</button>
+              </div>
+
+            </div>
+          </div>
+
+          ${renderRegisterModal()}
+          ${renderFaqModal()}
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // SCREEN 2: HOME MAP (DRIVER FLOW A.1)
+    // ==========================================
+    function renderHome() {
+      // Filter logic
+      let filteredSpots = SPOTS.filter(s => {
+        const matchSearch = s.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+          s.address.toLowerCase().includes(state.searchQuery.toLowerCase());
+        if (state.activeFilter === 'Mobil') return matchSearch && s.category === 'Mobil';
+        if (state.activeFilter === 'Motor') return matchSearch && s.category === 'Motor';
+        if (state.activeFilter === 'Tersedia') return matchSearch && s.availableSlots > 0;
+        return matchSearch;
+      });
+
+      const spot = state.selectedSpot || filteredSpots[0] || SPOTS[0];
+      const isBookmarked = state.bookmarkedSpots.includes(spot.id);
+
+      return `
+        <div class="relative w-full h-screen overflow-hidden flex flex-col bg-slate-200" id="screen-home">
+          <!-- Floating Header Pencarian -->
+          <div class="absolute top-0 left-0 right-0 z-30 m-3.5 space-y-2">
+            <div class="p-3 bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/80 flex justify-between items-center">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
+                  ${Icons.mapPin}
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Cari Garasi Sekitar</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  </div>
+                  <div class="text-[10px] text-slate-500">Lowokwaru, Kota Malang</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 text-right">
+                <div>
+                  <div class="text-[10px] text-slate-400">Saldo RuangPay</div>
+                  <div class="font-bold text-emerald-600 text-xs">${formatIDR(state.walletBalance)}</div>
+                </div>
+                <button onclick="state.topUpModal = true; render();" class="h-8 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl flex items-center gap-1 active:scale-95 transition cursor-pointer border border-slate-200">
+                  <span>${Icons.plus}</span> <span>Isi</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Search Bar & Filter Chips -->
+            <div class="space-y-1.5">
+              <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-sm border border-slate-200/80 p-2.5 flex items-center gap-2">
+                <span class="text-slate-400">${Icons.search}</span>
+                <input 
+                  type="text" 
+                  value="${state.searchQuery}" 
+                  oninput="state.searchQuery = this.value; render();" 
+                  placeholder="Cari jalan, kampus, atau area sekitar..." 
+                  class="w-full bg-transparent text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none border-none p-0"
+                >
+                ${state.searchQuery ? `
+                  <button onclick="state.searchQuery = ''; render();" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                    ${Icons.close}
+                  </button>
+                ` : ''}
+              </div>
+
+              <!-- Interactive Filter Chips -->
+              <div class="flex gap-1.5 overflow-x-auto hide-scrollbar pt-0.5">
+                ${['Semua', 'Mobil', 'Motor', 'Tersedia'].map(f => `
+                  <button 
+                    onclick="state.activeFilter = '${f}'; render();" 
+                    class="px-3 py-1 rounded-full text-[11px] font-medium transition cursor-pointer shrink-0 border ${state.activeFilter === f ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white/90 text-slate-600 border-slate-200 hover:bg-white'}"
+                  >
+                    ${f}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Realistic Vector Map Layer -->
+          <div class="relative w-full h-full bg-slate-200 overflow-hidden flex items-center justify-center">
+            <div class="absolute inset-0 pointer-events-none">
+              <svg class="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <path d="M-20,100 C150,180 200,80 450,220" stroke="#cbd5e1" stroke-width="26" fill="none" opacity="0.6"/>
+                <path d="M-20,100 C150,180 200,80 450,220" stroke="#94a3b8" stroke-width="14" fill="none" opacity="0.6"/>
+              </svg>
+              <div class="absolute top-36 left-6 w-32 h-24 bg-slate-300/50 border border-slate-400/40 rounded-3xl flex items-center justify-center text-[10px] font-semibold text-slate-600/70">Area Suhat</div>
+              <div class="absolute bottom-48 right-4 w-36 h-28 bg-slate-300/40 border border-slate-400/30 rounded-2xl flex items-center justify-center text-[10px] font-semibold text-slate-600/70">Kampus UB / Polinema</div>
+              <div class="absolute top-1/2 -translate-y-12 left-0 right-0 h-16 bg-white border-y-2 border-slate-300 shadow-sm flex items-center justify-center">
+                <div class="w-full border-t border-dashed border-slate-400"></div>
+                <span class="absolute right-8 text-[10px] font-semibold tracking-widest text-slate-400 uppercase">Jl. Soekarno Hatta</span>
+              </div>
+            </div>
+
+            <!-- GPS User Location -->
+            <div class="absolute top-[48%] left-[34%] z-20 pointer-events-none -translate-x-1/2 -translate-y-1/2">
+              <div class="w-10 h-10 rounded-full bg-emerald-500/20 animate-ping absolute"></div>
+              <div class="w-4 h-4 rounded-full bg-emerald-600 border-2 border-white shadow-md flex items-center justify-center"></div>
+            </div>
+
+            <!-- Pin Garasi 1 -->
+            <div onclick="state.selectedSpot = SPOTS[0]; render();" class="absolute top-[35%] left-[18%] z-20 cursor-pointer active:scale-95 transition-transform">
+              <div class="px-2.5 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1 shadow-md transition-all ${spot.id === '1' ? 'bg-slate-900 text-white ring-2 ring-emerald-500 scale-105' : 'bg-white text-slate-800 border border-slate-200'}">
+                <span class="w-2 h-2 rounded-full ${SPOTS[0].availableSlots > 0 ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+                <span>Garasi Pak Budi • Rp 8k</span>
+              </div>
+              <div class="w-2 h-2 ${spot.id === '1' ? 'bg-slate-900' : 'bg-white border-r border-b border-slate-200'} rotate-45 mx-auto -mt-1"></div>
+            </div>
+
+            <!-- Pin Garasi 2 -->
+            <div onclick="state.selectedSpot = SPOTS[1]; render();" class="absolute top-[60%] right-[10%] z-20 cursor-pointer active:scale-95 transition-transform">
+              <div class="px-2.5 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1 shadow-md transition-all ${spot.id === '2' ? 'bg-slate-900 text-white ring-2 ring-emerald-500 scale-105' : 'bg-white text-slate-800 border border-slate-200'}">
+                <span class="w-2 h-2 rounded-full ${SPOTS[1].availableSlots > 0 ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+                <span>Garasi Bu Rina • Rp 8k</span>
+              </div>
+              <div class="w-2 h-2 ${spot.id === '2' ? 'bg-slate-900' : 'bg-white border-r border-b border-slate-200'} rotate-45 mx-auto -mt-1"></div>
+            </div>
+
+            <!-- Pin Garasi 3 -->
+            <div onclick="state.selectedSpot = SPOTS[2]; render();" class="absolute top-[28%] right-[16%] z-20 cursor-pointer active:scale-95 transition-transform">
+              <div class="px-2.5 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1 shadow-md transition-all ${spot.id === '3' ? 'bg-slate-900 text-white ring-2 ring-emerald-500 scale-105' : 'bg-white text-slate-800 border border-slate-200'}">
+                <span class="w-2 h-2 rounded-full ${SPOTS[2].availableSlots > 0 ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+                <span>Lahan Merbabu • Rp 3k</span>
+              </div>
+              <div class="w-2 h-2 ${spot.id === '3' ? 'bg-slate-900' : 'bg-white border-r border-b border-slate-200'} rotate-45 mx-auto -mt-1"></div>
+            </div>
+          </div>
+
+          <!-- Bottom Card Preview Garasi Terpilih -->
+          <div class="absolute bottom-16 left-3 right-3 z-30 bg-white rounded-2xl p-4 shadow-xl border border-slate-200/90 flex flex-col gap-3">
+            <div class="flex items-start gap-3 cursor-pointer" onclick="setScreen('DETAIL')">
+              <img src="${spot.photo}" alt="${spot.name}" class="w-20 h-20 rounded-xl object-cover shrink-0 border border-slate-100">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-1 mb-1">
+                  <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-100 text-slate-700">
+                    ${spot.availableSlots} Slot Kosong
+                  </span>
+                  <span class="text-[11px] font-medium text-slate-400">${spot.distance}</span>
+                </div>
+                <h3 class="font-bold text-slate-900 text-xs truncate leading-snug">${spot.name}</h3>
+                <p class="text-[11px] text-slate-500 truncate mt-0.5">${spot.address}</p>
+                <div class="flex items-center justify-between mt-1.5">
+                  <div class="flex items-center gap-1 text-[11px] text-slate-700 font-medium">
+                    ${Icons.star}
+                    <span>${spot.rating}</span>
+                    <span class="text-slate-400">(${spot.reviews})</span>
+                  </div>
+                  <span class="text-xs font-bold text-emerald-600">Rp ${spot.priceMobil.toLocaleString('id-ID')} / 3 Jam</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-1 border-t border-slate-100">
+              <button onclick="setScreen('DETAIL')" class="flex-1 h-12 min-h-[48px] bg-slate-900 hover:bg-black active:scale-[0.98] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition cursor-pointer shadow-sm">
+                <span>Pilih & Booking</span>
+                <span>${Icons.arrowRight}</span>
+              </button>
+              <button onclick="toggleBookmark('${spot.id}')" class="w-12 h-12 min-h-[48px] bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center transition cursor-pointer border border-slate-200">
+                ${isBookmarked ? Icons.bookmarkFilled : Icons.bookmark}
+              </button>
+              <button onclick="showToast('Rute navigasi ke ' + spot.shortName + ' dimulai');" class="w-12 h-12 min-h-[48px] bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center transition cursor-pointer border border-slate-200">
+                ${Icons.navigation}
+              </button>
+            </div>
+          </div>
+
+          ${renderBottomNav('HOME')}
+          ${renderTopupModal()}
+        </div>
+      `;
+    }
+
+    function toggleBookmark(id) {
+      if (state.bookmarkedSpots.includes(id)) {
+        state.bookmarkedSpots = state.bookmarkedSpots.filter(x => x !== id);
+        showToast('Dihapus dari garasi tersimpan');
+      } else {
+        state.bookmarkedSpots.push(id);
+        showToast('Disimpan ke daftar favorit');
+      }
+      render();
+    }
+
+    // ==========================================
+    // SCREEN 3: DETAIL SPOT
+    // ==========================================
+    function renderDetail() {
+      const spot = state.selectedSpot || SPOTS[0];
+      return `
+        <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-detail">
+          <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+            <button onclick="setScreen('HOME')" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 active:scale-90 transition cursor-pointer">${Icons.arrowLeft}</button>
+            <h2 class="font-bold text-slate-900 text-sm">Detail Lahan Parkir</h2>
+            <div class="w-10"></div>
+          </div>
+
+          <div class="p-4 space-y-4">
+            <!-- Cover Photo & Header -->
+            <div class="relative rounded-2xl overflow-hidden h-48 bg-slate-900 shadow-sm">
+              <img src="${spot.photo}" alt="${spot.name}" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+              <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+                <div>
+                  <span class="px-2 py-0.5 text-white text-[10px] font-semibold rounded bg-emerald-600">
+                    Buka • Sisa ${spot.availableSlots} Slot
+                  </span>
+                  <h1 class="text-base font-bold text-white mt-1 leading-snug">${spot.name}</h1>
+                </div>
+                <span class="px-2 py-1 bg-white/90 text-slate-900 text-[11px] font-semibold rounded-lg shadow-sm">${spot.distance}</span>
+              </div>
+            </div>
+
+            <!-- Petugas Juru Parkir Bertugas -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                ${Icons.userCheck}
+              </div>
+              <div class="flex-1">
+                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Petugas Lapangan Resmi</span>
+                <div class="font-bold text-slate-900 text-xs mt-0.5">${spot.jukirName}</div>
+                <p class="text-[11px] text-slate-500">Merapikan kendaraan, validasi QR, dan menjaga keamanan barang.</p>
+              </div>
+            </div>
+
+            <!-- Fasilitas Lahan -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2">
+              <span class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Fasilitas Lahan</span>
+              <div class="grid grid-cols-2 gap-2 text-xs text-slate-700">
+                ${spot.facilities.map(f => `
+                  <div class="flex items-center gap-1.5 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="text-emerald-600">${Icons.check}</span>
+                    <span class="text-[11px] font-medium">${f}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Ketentuan Tarif Resmi Flat 3 Jam -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2.5">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Ketentuan Tarif Flat</span>
+                <button onclick="state.faqModal = true; render();" class="text-[11px] font-medium text-emerald-600 hover:underline cursor-pointer flex items-center gap-1">
+                  ${Icons.info}
+                  <span>Ketentuan</span>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+                  <div class="font-bold text-slate-800 flex items-center gap-1.5">${Icons.bike} <span>Motor</span></div>
+                  <div class="text-emerald-600 font-bold text-sm mt-1">Rp 3.000</div>
+                  <div class="text-slate-500 text-[10px] mt-0.5">Deposit Flat 1–3 Jam Awal</div>
+                  <div class="text-slate-400 text-[10px] mt-0.5">+Rp 1.000 / jam berikutnya</div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+                  <div class="font-bold text-slate-800 flex items-center gap-1.5">${Icons.car} <span>Mobil</span></div>
+                  <div class="text-emerald-600 font-bold text-sm mt-1">Rp 8.000</div>
+                  <div class="text-slate-500 text-[10px] mt-0.5">Deposit Flat 1–3 Jam Awal</div>
+                  <div class="text-slate-400 text-[10px] mt-0.5">+Rp 1.000 / jam berikutnya</div>
+                </div>
+              </div>
+
+              <div class="p-2.5 bg-slate-100/70 rounded-xl text-[11px] text-slate-600 leading-relaxed border border-slate-200/60">
+                <strong>Prinsip Penggunaan Adil:</strong> Pembayaran di muka adalah deposit penguncian slot. Kelebihan waktu di atas 3 jam dihitung presisi berdasarkan durasi aktual saat keluar.
+              </div>
+            </div>
+          </div>
+
+          <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-lg">
+            <button onclick="setScreen('CHECKOUT')" class="h-14 min-h-[54px] w-full rounded-2xl font-bold text-base transition active:scale-[0.98] shadow-md flex items-center justify-center gap-2.5 cursor-pointer bg-slate-900 hover:bg-black text-white">
+              <span>Lanjut ke Form Reservasi</span>
+              <span>${Icons.arrowRight}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // SCREEN 4: CHECKOUT FORM & DEPOSIT (ALUR 7.2 A.2)
+    // ==========================================
+    function renderCheckout() {
+      const spot = state.selectedSpot || SPOTS[0];
+      const baseDeposit = getBaseDepositPrice(state.vehicleType);
+      const estExtraHours = state.plannedDuration > 3 ? (state.plannedDuration - 3) : 0;
+      const estExtraCost = estExtraHours * 1000;
+      const finalPayNow = Math.max(0, baseDeposit - state.discountAmount);
+
+      return `
+        <div class="flex flex-col min-h-screen bg-slate-50 pb-36" id="screen-checkout">
+          <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+            <button onclick="setScreen('DETAIL')" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 active:scale-90 transition cursor-pointer">${Icons.arrowLeft}</button>
+            <h2 class="font-bold text-slate-900 text-sm">Formulir Reservasi Slot</h2>
+            <div class="w-10"></div>
+          </div>
+
+          <div class="p-4 space-y-3.5">
+            <!-- Informasi Titik Garasi -->
+            <div class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                ${Icons.building}
+              </div>
+              <div class="truncate">
+                <div class="font-bold text-slate-900 text-xs truncate">${spot.name}</div>
+                <div class="text-[11px] text-slate-500 truncate">${spot.address}</div>
+              </div>
+            </div>
+
+            <!-- 1. Pilihan Jenis Kendaraan -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2.5">
+              <label class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">1. Jenis Kendaraan</label>
+              <div class="grid grid-cols-2 gap-2.5">
+                <button type="button" onclick="state.vehicleType = 'MOBIL'; if(!state.plateNumber || state.plateNumber === 'N 8892 XY') state.plateNumber = 'N 1234 ABC'; render();" class="p-3 rounded-xl border text-center transition flex flex-col items-center gap-1.5 cursor-pointer ${state.vehicleType === 'MOBIL' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
+                  <div class="p-2 rounded-lg ${state.vehicleType === 'MOBIL' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}">${Icons.car}</div>
+                  <div class="font-bold text-xs text-slate-900">Mobil</div>
+                  <div class="text-[11px] font-semibold text-emerald-600">Deposit Rp 8.000 <span class="text-[10px] text-slate-400 font-normal">(Flat 3 Jam)</span></div>
+                </button>
+                <button type="button" onclick="state.vehicleType = 'MOTOR'; if(!state.plateNumber || state.plateNumber === 'N 1234 ABC') state.plateNumber = 'N 8892 XY'; render();" class="p-3 rounded-xl border text-center transition flex flex-col items-center gap-1.5 cursor-pointer ${state.vehicleType === 'MOTOR' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
+                  <div class="p-2 rounded-lg ${state.vehicleType === 'MOTOR' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}">${Icons.bike}</div>
+                  <div class="font-bold text-xs text-slate-900">Motor</div>
+                  <div class="text-[11px] font-semibold text-emerald-600">Deposit Rp 3.000 <span class="text-[10px] text-slate-400 font-normal">(Flat 3 Jam)</span></div>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. Plat Nomor Kendaraan -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2">
+              <div class="flex justify-between items-center">
+                <label class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">2. Nomor Plat Kendaraan</label>
+                <span class="text-[10px] text-slate-400 font-mono">Verifikasi Pos Jukir</span>
+              </div>
+              <div class="relative">
+                <input 
+                  id="checkout-plate-input" 
+                  type="text" 
+                  value="${state.plateNumber}" 
+                  placeholder="Contoh: N 1234 ABC" 
+                  oninput="state.plateNumber = this.value.toUpperCase();"
+                  class="w-full h-12 px-4 rounded-xl bg-slate-50 border border-slate-200 font-mono font-bold text-slate-900 text-sm uppercase tracking-wider focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition"
+                >
+                <span class="absolute right-3.5 top-3.5 text-xs text-slate-400 pointer-events-none font-semibold">PLAT ID</span>
+              </div>
+            </div>
+
+            <!-- 3. Rencana Durasi Parkir -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2.5">
+              <div class="flex justify-between items-center">
+                <div>
+                  <label class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">3. Rencana Durasi Penggunaan</label>
+                  <span class="text-[10px] text-slate-400">Estimasi waktu parkir Anda</span>
+                </div>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${state.plannedDuration <= 3 ? 'bg-slate-100 text-slate-700' : 'bg-amber-50 text-amber-800'}">
+                  ${state.plannedDuration <= 3 ? 'Paket Flat 3 Jam' : `Rencana Ekstra +${estExtraHours} Jam`}
+                </span>
+              </div>
+
+              <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                <button 
+                  type="button"
+                  onclick="if(state.plannedDuration > 1){ state.plannedDuration--; render(); }" 
+                  class="w-11 h-11 bg-white rounded-lg flex items-center justify-center font-bold text-slate-700 shadow-sm border border-slate-200 active:scale-90 transition cursor-pointer"
+                >
+                  ${Icons.minus}
+                </button>
+                <div class="text-center">
+                  <div class="flex items-baseline justify-center gap-1">
+                    <span class="text-2xl font-black text-slate-900 font-mono">${state.plannedDuration}</span>
+                    <span class="text-xs font-semibold text-slate-500">Jam</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">
+                    ${state.plannedDuration <= 3
+          ? 'Lunas dengan deposit flat awal'
+          : `Estimasi ekstra +${formatIDR(estExtraCost)} (dipotong di akhir)`}
+                  </div>
+                </div>
+                <button 
+                  type="button"
+                  onclick="if(state.plannedDuration < 12){ state.plannedDuration++; render(); }" 
+                  class="w-11 h-11 bg-white rounded-lg flex items-center justify-center font-bold text-slate-700 shadow-sm border border-slate-200 active:scale-90 transition cursor-pointer"
+                >
+                  ${Icons.plus}
+                </button>
+              </div>
+
+              <p class="text-[11px] text-slate-500 leading-relaxed">
+                Biaya yang ditagih saat ini adalah <strong>deposit tanda jadi flat 3 jam</strong>. Jika durasi aktual Anda selesai lebih awal (&le; 3 jam), tidak ada pemotongan tambahan.
+              </p>
+            </div>
+
+            <!-- 4. Metode Pembayaran -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2">
+              <label class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">4. Metode Pembayaran</label>
+
+              <!-- Saldo RuangPay -->
+              <div onclick="state.paymentMethod = 'SALDO'; render();" class="p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${state.paymentMethod === 'SALDO' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+                    ${Icons.wallet}
+                  </div>
+                  <div>
+                    <div class="font-bold text-xs text-slate-900">Saldo RuangPay (E-Wallet)</div>
+                    <div class="text-[11px] text-slate-500">Saldo aktif: <strong class="text-emerald-600">${formatIDR(state.walletBalance)}</strong></div>
+                  </div>
+                </div>
+                <div class="w-4 h-4 rounded-full border flex items-center justify-center ${state.paymentMethod === 'SALDO' ? 'border-slate-900 bg-slate-900' : 'border-slate-300'}">
+                  ${state.paymentMethod === 'SALDO' ? '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>' : ''}
+                </div>
+              </div>
+
+              <!-- QRIS Instan -->
+              <div onclick="state.paymentMethod = 'QRIS'; render();" class="p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${state.paymentMethod === 'QRIS' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
+                    QR
+                  </div>
+                  <div>
+                    <div class="font-bold text-xs text-slate-900">QRIS Instan (Semua Bank / E-Wallet)</div>
+                    <div class="text-[11px] text-slate-500">GoPay, OVO, ShopeePay, BCA, Mandiri</div>
+                  </div>
+                </div>
+                <div class="w-4 h-4 rounded-full border flex items-center justify-center ${state.paymentMethod === 'QRIS' ? 'border-slate-900 bg-slate-900' : 'border-slate-300'}">
+                  ${state.paymentMethod === 'QRIS' ? '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>' : ''}
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Kode Promo / Diskon (Interaktif) -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2">
+              <label class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">5. Kode Promo / Diskon</label>
+              <div class="flex gap-2">
+                <input 
+                  id="checkout-promo-input" 
+                  type="text" 
+                  value="${state.promoCode}" 
+                  placeholder="Gunakan kode: HEMAT1K" 
+                  class="flex-1 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono font-semibold uppercase focus:bg-white focus:border-slate-900"
+                >
+                <button type="button" onclick="applyPromoCode()" class="px-4 h-10 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold cursor-pointer transition">
+                  Terapkan
+                </button>
+              </div>
+              ${state.discountAmount > 0 ? `
+                <div class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                  ${Icons.check} <span>Diskon promo Rp 1.000 berhasil diterapkan!</span>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Rincian Biaya Transparansi -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2 text-xs">
+              <span class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">Rincian Pembayaran Deposit</span>
+
+              <div class="flex justify-between text-slate-600">
+                <span>Deposit Penguncian Slot (Flat 3 Jam):</span>
+                <span class="font-bold text-slate-900">${formatIDR(baseDeposit)}</span>
+              </div>
+
+              ${state.discountAmount > 0 ? `
+                <div class="flex justify-between text-emerald-600">
+                  <span>Potongan Diskon Promo:</span>
+                  <span class="font-bold">-${formatIDR(state.discountAmount)}</span>
+                </div>
+              ` : ''}
+
+              <div class="flex justify-between text-slate-600">
+                <span>Rencana Tambahan (${estExtraHours} Jam x Rp 1.000):</span>
+                <span class="font-medium text-slate-400">
+                  ${estExtraCost > 0 ? `Estimasi +${formatIDR(estExtraCost)} (di akhir)` : 'Rp 0'}
+                </span>
+              </div>
+
+              <div class="pt-2 border-t border-slate-100 flex justify-between items-baseline">
+                <div>
+                  <div class="font-bold text-slate-900 text-sm">Total Deposit Sekarang</div>
+                  <div class="text-[10px] text-slate-400">Slot terkunci aman anti-no show</div>
+                </div>
+                <span class="text-xl font-black text-slate-900">${formatIDR(finalPayNow)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Action Bar -->
+          <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-lg">
+            <button onclick="handleBookingPayment(${finalPayNow})" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-base transition shadow-md flex items-center justify-center gap-2.5 cursor-pointer">
+              <span>Bayar Deposit (${formatIDR(finalPayNow)})</span>
+              <span>${Icons.arrowRight}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function applyPromoCode() {
+      const code = document.getElementById('checkout-promo-input').value.trim().toUpperCase();
+      state.promoCode = code;
+      if (code === 'HEMAT1K' || code === 'DISKONPARKIR') {
+        state.discountAmount = 1000;
+        showToast('Voucher valid! Diskon Rp 1.000 diterapkan.');
+      } else if (code === '') {
+        state.discountAmount = 0;
+      } else {
+        state.discountAmount = 0;
+        showToast('Kode voucher tidak ditemukan');
+      }
+      render();
+    }
+
+    function handleBookingPayment(finalTotal) {
+      const plateEl = document.getElementById('checkout-plate-input');
+      if (plateEl && plateEl.value.trim() !== '') {
+        state.plateNumber = plateEl.value.trim().toUpperCase();
+      }
+
+      if (state.paymentMethod === 'SALDO') {
+        if (state.walletBalance < finalTotal) {
+          showToast('Saldo RuangPay tidak mencukupi, silakan isi saldo.');
+          state.topUpModal = true;
+          render();
+          return;
+        }
+        state.walletBalance -= finalTotal;
+      }
+
+      const bookingCode = `RP-${Math.floor(10000 + Math.random() * 90000)}`;
+      const assignedSlot = state.vehicleType === 'MOTOR' ? 'Slot M-02' : 'Slot A-02';
+
+      state.activeBooking = {
+        code: bookingCode,
+        spotName: state.selectedSpot ? state.selectedSpot.name : 'Garasi Pak Budi - Soekarno Hatta No. 45',
+        plate: state.plateNumber,
+        slot: assignedSlot,
+        vehicle: state.vehicleType,
+        plannedDuration: state.plannedDuration,
+        depositPaid: finalTotal,
+        overstayPaid: 0,
+        checkInTime: null,
+        paymentMethod: state.paymentMethod
+      };
+
+      state.ticketStatus = 'WAITING_CHECKIN';
+      state.parkingSecondsElapsed = 0;
+
+      // Masukkan ke antrean log juru parkir
+      state.parkedVehicles.unshift({
+        plate: state.plateNumber,
+        type: state.vehicleType === 'MOBIL' ? 'Mobil Tamu' : 'Motor Tamu',
+        slot: assignedSlot,
+        durationNow: 'Menunggu Check-in',
+        durationSec: 0,
+        note: `Booking #${bookingCode}`,
+        status: 'WAITING_CHECKIN'
+      });
+
+      // Masukkan ke riwayat
+      state.historyList.unshift({
+        code: bookingCode,
+        spot: state.activeBooking.spotName,
+        vehicle: state.vehicleType,
+        plate: state.activeBooking.plate,
+        date: 'Hari Ini',
+        duration: `Rencana ${state.plannedDuration} Jam`,
+        deposit: finalTotal,
+        overstay: 0,
+        cost: finalTotal,
+        status: 'Menunggu Check-in'
+      });
+
+      showToast(`Deposit ${formatIDR(finalTotal)} terbayar. E-Tiket aktif!`);
+      setScreen('TICKET');
+    }
+
+    function confirmCheckIn() {
+      state.ticketStatus = 'ACTIVE';
+      state.parkingSecondsElapsed = 6300; // Simulasi 1 jam 45 menit untuk kelancaran presentasi
+      state.activeBooking.checkInTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      if (state.historyList[0]) {
+        state.historyList[0].status = 'Aktif Parkir';
+      }
+
+      const v = state.parkedVehicles.find(x => x.plate === state.activeBooking.plate);
+      if (v) {
+        v.status = 'ACTIVE';
+        v.durationNow = '01:45:00';
+      }
+
+      state.scannerModal = false;
+      showToast('Scan Check-In berhasil. Argometer waktu dimulai!');
+      render();
+    }
+
+    // ==========================================
+    // SCREEN 5: E-TIKET & ARGOMETER (ALUR 7.2 A.3)
+    // ==========================================
+    function renderTicket() {
+      const ticket = state.activeBooking;
+      const isWaiting = state.ticketStatus === 'WAITING_CHECKIN';
+      const isFinished = state.ticketStatus === 'FINISHED';
+
+      return `
+        <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-ticket">
+          <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+            <button onclick="setScreen('HOME')" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 active:scale-90 transition cursor-pointer">${Icons.arrowLeft}</button>
+            <h2 class="font-bold text-slate-900 text-sm">E-Tiket & Argometer</h2>
+            <button onclick="state.faqModal = true; render();" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 cursor-pointer">
+              ${Icons.helpCircle}
+            </button>
+          </div>
+
+          <div class="p-4 space-y-4">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 text-center relative overflow-hidden">
+              ${isWaiting ? `
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full text-xs font-semibold mb-4">
+                  <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                  <span>Menunggu Check-in di Lokasi</span>
+                </div>
+              ` : (isFinished ? `
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full text-xs font-semibold mb-4">
+                  <span>Parkir Telah Selesai</span>
+                </div>
+              ` : `
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full text-xs font-semibold mb-4">
+                  <span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
+                  <span>Parkir Aktif • Argometer Berjalan</span>
+                </div>
+              `)}
+
+              <!-- Realistic Modern QR Code Box -->
+              <div class="w-56 h-56 mx-auto bg-slate-50 border-2 ${isWaiting ? 'border-amber-300' : 'border-slate-900'} rounded-2xl p-4 flex flex-col justify-between items-center relative">
+                <div class="w-full flex justify-between items-center">
+                  <div class="w-6 h-6 bg-slate-900 rounded flex items-center justify-center"><div class="w-2.5 h-2.5 bg-white"></div></div>
+                  <span class="text-[9px] font-mono font-bold tracking-widest text-slate-400">RUANGPARKIR</span>
+                  <div class="w-6 h-6 bg-slate-900 rounded flex items-center justify-center"><div class="w-2.5 h-2.5 bg-white"></div></div>
+                </div>
+
+                <div class="my-auto flex flex-col items-center">
+                  <svg class="w-24 h-24 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm8-2h2v2h-2v-2zm4 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm6-4h2v4h-2v-4zm-2 4h2v2h-2v-2zm2 2h2v2h-2v-2zm-8 0h4v2h-4v-2z"/>
+                  </svg>
+                  <span class="text-xs font-mono font-bold text-slate-900 mt-1">#${ticket.code}</span>
+                </div>
+
+                <div class="w-full flex justify-between items-end">
+                  <div class="w-6 h-6 bg-slate-900 rounded flex items-center justify-center"><div class="w-2.5 h-2.5 bg-white"></div></div>
+                  <span class="text-[9px] font-semibold text-slate-600 bg-slate-200/80 px-2 py-0.5 rounded">
+                    ${isWaiting ? 'Tunjukkan ke Petugas' : 'Terverifikasi Check-in'}
+                  </span>
+                  <div class="w-6 h-6 bg-slate-900 rounded flex items-center justify-center"><div class="w-2.5 h-2.5 bg-white"></div></div>
+                </div>
+              </div>
+
+              <!-- Plat & Slot -->
+              <div class="text-lg font-black text-slate-900 mt-4 tracking-tight">[${ticket.vehicle}] ${ticket.plate}</div>
+              <div class="text-xs text-slate-500 font-medium mt-0.5">${ticket.spotName} • ${ticket.slot}</div>
+
+              <!-- Argometer Live Timer -->
+              <div class="bg-slate-50 p-4 rounded-2xl border ${isWaiting ? 'border-amber-200/60 bg-amber-50/20' : 'border-slate-100'} mt-4">
+                <div class="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wide">
+                  <span>${isWaiting ? 'Status Argometer' : 'Durasi Parkir Terpakai'}</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] ${isWaiting ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+                    ${isWaiting ? 'Ditahan Sebelum Scan' : 'Berjalan'}
+                  </span>
+                </div>
+                <div id="ticket-live-timer" class="text-3xl font-black ${isWaiting ? 'text-slate-400' : 'text-slate-900'} font-mono tracking-widest mt-2">
+                  ${formatDuration(state.parkingSecondsElapsed)}
+                </div>
+                <div class="mt-2 pt-2 border-t border-slate-200 flex justify-between text-[11px] text-slate-500">
+                  <span>Batas Waktu Kuota Flat:</span>
+                  <span class="font-bold text-emerald-700">03:00:00 (Flat 3 Jam)</span>
+                </div>
+              </div>
+
+              <!-- Action Buttons Simulasi Antar Peran -->
+              <div class="mt-5 space-y-2">
+                ${isWaiting ? `
+                  <button onclick="confirmCheckIn()" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-md">
+                    <span>${Icons.scan}</span>
+                    <span>[Simulasi Lapangan] Jukir Scan Masuk</span>
+                  </button>
+                ` : (isFinished ? `
+                  <button onclick="setScreen('HOME')" class="h-14 min-h-[54px] w-full bg-slate-900 text-white rounded-2xl font-bold text-sm transition cursor-pointer shadow-md flex items-center justify-center">
+                    Cari Tempat Parkir Baru
+                  </button>
+                ` : `
+                  <button onclick="state.overstayModal = true; render();" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-md">
+                    <span>${Icons.clock}</span>
+                    <span>Verifikasi Keluar & Hitung Durasi Aktual</span>
+                  </button>
+                `)}
+              </div>
+            </div>
+          </div>
+
+          ${renderBottomNav('TICKET')}
+          ${renderOverstayModal()}
+          ${renderFaqModal()}
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // SCREEN 6: DRIVER HISTORY
+    // ==========================================
+    function renderDriverHistory() {
+      return `
+        <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-driver-history">
+          <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+            <button onclick="setScreen('HOME')" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 active:scale-90 transition cursor-pointer">${Icons.arrowLeft}</button>
+            <h2 class="font-bold text-slate-900 text-sm">Riwayat Parkir</h2>
+            <div class="w-10"></div>
+          </div>
+
+          <div class="p-4 space-y-3">
+            ${state.historyList.map(h => `
+              <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2.5">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[10px] font-mono text-slate-400">#${h.code}</span>
+                    <h3 class="font-bold text-slate-900 text-sm mt-0.5">${h.spot}</h3>
+                    <p class="text-[11px] text-slate-500 font-medium">${h.vehicle} • ${h.plate}</p>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${h.status === 'Selesai' ? 'bg-slate-100 text-slate-700' : 'bg-emerald-100 text-emerald-800'}">
+                    ${h.status}
+                  </span>
+                </div>
+                <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+                  <div class="text-[11px] text-slate-400">${h.date} (${h.duration})</div>
+                  <div class="text-right">
+                    <span class="text-slate-400 text-[10px] block">Total Biaya:</span>
+                    <span class="font-bold text-slate-900 text-sm">${formatIDR(h.cost)}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          ${renderBottomNav('DRIVER_HISTORY')}
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // SCREEN 7: LANDOWNER DASHBOARD (ALUR 7.2 B.1 & B.2)
+    // ==========================================
+    function renderLandowner() {
+      const occupied = state.parkedVehicles.filter(v => v.status === 'ACTIVE').length;
+      return `
+        <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-landowner">
+          <div class="bg-slate-900 text-white rounded-b-3xl p-6 shadow-lg">
+            <div class="flex justify-between items-center mb-5">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/70 px-2 py-0.5 rounded">Portal Mitra Penyedia</span>
+                <h1 class="text-xl font-black text-white mt-1">Garasi Pak Budi</h1>
+                <p class="text-[11px] text-slate-400">Jl. Soekarno Hatta No. 45, Lowokwaru</p>
+              </div>
+              <button onclick="setScreen('PROFILE')" class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-200 cursor-pointer">${Icons.user}</button>
+            </div>
+
+            <!-- B.1 Toggle Status Lahan Garasi -->
+            <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700 flex items-center justify-between">
+              <div>
+                <div class="text-[11px] text-slate-400 font-medium">Status Operasional Lahan</div>
+                <div class="text-sm font-bold text-white mt-0.5 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full ${state.isGarageOpen ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}"></span>
+                  <span>${state.isGarageOpen ? 'Buka untuk Umum' : 'Ditutup Sementara'}</span>
+                </div>
+              </div>
+              <button onclick="state.isGarageOpen = !state.isGarageOpen; showToast(state.isGarageOpen ? 'Lahan dibuka untuk pemesanan' : 'Lahan ditutup sementara'); render();" class="relative w-16 h-8 rounded-full transition-colors p-1 flex items-center cursor-pointer ${state.isGarageOpen ? 'bg-emerald-500' : 'bg-slate-600'}">
+                <div class="w-6 h-6 rounded-full bg-white shadow-md transform transition-transform flex items-center justify-center text-[9px] font-bold ${state.isGarageOpen ? 'translate-x-8 text-emerald-600' : 'translate-x-0 text-slate-700'}">
+                  ${state.isGarageOpen ? 'ON' : 'OFF'}
+                </div>
+              </button>
+            </div>
+
+            <!-- B.2 Pendapatan Bagi Hasil 40% -->
+            <div class="mt-5 pt-4 border-t border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="text-[11px] text-slate-400 font-medium">Bagi Hasil Pemilik (40%) Hari Ini</div>
+                <div class="text-2xl font-black text-white mt-0.5">${formatIDR(state.todayRevenue)}</div>
+                <div class="text-[11px] text-emerald-400 font-medium">Saldo Tertampung: ${formatIDR(state.landownerBalance)}</div>
+              </div>
+              <button onclick="state.withdrawModal = true; render();" class="h-10 px-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                <span>Tarik Dana</span>
+                <span>${Icons.arrowRight}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-4">
+            <!-- Kapasitas Slot -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Kapasitas Slot Terpakai</span>
+                <div class="text-base font-bold text-slate-900 mt-0.5">${occupied} Terpakai dari 4 Total Slot Mobil</div>
+                <div class="text-[11px] text-slate-500">Sisa ${4 - occupied} slot kosong tersedia</div>
+              </div>
+              <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center font-bold text-base">
+                ${Math.round((occupied / 4) * 100)}%
+              </div>
+            </div>
+
+            <!-- List Kendaraan Aktif Real-time -->
+            <div class="space-y-2.5">
+              <div class="flex justify-between items-center">
+                <h2 class="font-bold text-slate-900 text-xs tracking-tight">Kendaraan Terparkir Real-Time (${occupied} Unit)</h2>
+                <button onclick="setScreen('LANDOWNER_MANAGE')" class="text-xs font-semibold text-emerald-600 hover:underline cursor-pointer">+ Tambah Garasi</button>
+              </div>
+
+              ${state.parkedVehicles.map(v => `
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 text-slate-700">
+                      ${v.type.includes('Motor') || v.type.includes('Vario') ? Icons.bike : Icons.car}
+                    </div>
+                    <div>
+                      <div class="font-mono font-bold text-slate-900 text-sm">${v.plate}</div>
+                      <div class="text-[11px] text-slate-500 font-medium">${v.type} • ${v.slot}</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[10px] text-slate-400">Argometer</div>
+                    <div class="text-xs font-mono font-bold text-emerald-600">${v.durationNow}</div>
+                    <span class="text-[9px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded inline-block mt-0.5">${v.note}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          ${renderBottomNav('LANDOWNER')}
+          ${renderWithdrawModal()}
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // SCREEN 8: LANDOWNER MANAGE
+    // ==========================================
+    function renderLandownerManage() {
+      return `
+        <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-landowner-manage">
+          <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+            <button onclick="setScreen('LANDOWNER')" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 active:scale-90 transition cursor-pointer">${Icons.arrowLeft}</button>
+            <h2 class="font-bold text-slate-900 text-sm">Kelola Lahan Garasi</h2>
+            <div class="w-10"></div>
+          </div>
+
+          <div class="p-4 space-y-4">
+            <div class="bg-slate-900 rounded-2xl p-5 text-white shadow-sm flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Aset Menganggur Menjadi Produktif</span>
+                <h2 class="text-base font-bold mt-1.5 leading-snug">Monetisasi Halaman & Garasi Rumah</h2>
+                <p class="text-xs text-slate-300 mt-1 leading-relaxed">Daftarkan kapasitas lahan kosong Anda ke RuangParkir dan dapatkan bagi hasil 40% dari setiap jam parkir.</p>
+              </div>
+              <button onclick="state.addGarageModal = true; render();" class="mt-4 h-11 w-full bg-white hover:bg-slate-100 active:scale-95 text-slate-900 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                <span>${Icons.plus}</span> <span>Daftarkan Lahan Garasi Baru</span>
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide">Garasi Terdaftar (${myGarages.length})</h3>
+                <span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium">Terverifikasi</span>
+              </div>
+
+              ${myGarages.map((g) => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <h4 class="font-bold text-slate-900 text-sm">${g.name}</h4>
+                        <span class="px-2 py-0.5 text-[10px] font-semibold rounded ${g.isOpen ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}">
+                          ${g.isOpen ? 'Buka' : 'Tutup'}
+                        </span>
+                      </div>
+                      <p class="text-xs text-slate-500 mt-0.5">${g.address}</p>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-100">
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                      <div class="text-slate-400 text-[10px]">Slot Mobil</div>
+                      <div class="font-bold text-slate-800 text-sm mt-0.5">${g.occupiedCar || 0} / ${g.slotsCar} Terpakai</div>
+                      <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">Tarif: ${formatIDR(g.priceFlatCar)} / 3 Jam</div>
+                    </div>
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                      <div class="text-slate-400 text-[10px]">Slot Motor</div>
+                      <div class="font-bold text-slate-800 text-sm mt-0.5">${g.occupiedBike || 0} / ${g.slotsBike} Terpakai</div>
+                      <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">Tarif: ${formatIDR(g.priceFlatBike)} / 3 Jam</div>
+                    </div>
+                  </div>
+                  <div class="flex gap-2 pt-1">
+                    <button onclick="g.isOpen = !g.isOpen; showToast('Status operasional diubah'); render();" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl transition cursor-pointer">
+                      ${g.isOpen ? 'Tutup Sementara' : 'Buka Garasi'}
+                    </button>
+                    <button onclick="showToast('Pengaturan kuota slot dibuka');" class="px-3 py-2 bg-slate-100 text-slate-800 text-xs font-semibold rounded-xl transition cursor-pointer">
+                      Atur Kuota
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          ${renderBottomNav('LANDOWNER_MANAGE')}
+          ${renderAddGarageModal()}
+        </div>
+      `;
+    }
+
+    // MODAL FORM TAMBAH GARASI BARU
+    function renderAddGarageModal() {
+      if (!state.addGarageModal) return '';
+      return `
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-left shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="state.addGarageModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
+            <h3 class="text-base font-bold text-slate-900">Form Pendaftaran Lahan Garasi</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Daftarkan kapasitas lahan Anda ke dalam sistem.</p>
+
+            <form onsubmit="handleSaveNewGarage(event)" class="space-y-3 mt-4 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Nama Garasi / Lahan *</label>
+                <input id="new_garage_name" type="text" placeholder="Contoh: Halaman Depan Bu Siti" required class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-900 font-medium text-slate-900">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Alamat Lengkap *</label>
+                <textarea id="new_garage_address" rows="2" placeholder="Contoh: Jl. Bunga Cengkeh No. 22, Lowokwaru" required class="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-900 font-medium text-slate-900"></textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1">Slot Mobil *</label>
+                  <input id="new_garage_car_slots" type="number" min="1" max="50" value="3" required class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-900 font-bold text-slate-900">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1">Slot Motor *</label>
+                  <input id="new_garage_bike_slots" type="number" min="1" max="100" value="6" required class="w-full h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-900 font-bold text-slate-900">
+                </div>
+              </div>
+
+              <div class="p-3 bg-slate-50 rounded-xl text-slate-600 text-[11px] leading-relaxed border border-slate-200">
+                Tarif standar flat 3 jam (Mobil Rp 8.000 / Motor Rp 3.000). Sistem otomatis menyalurkan 40% dari total pendapatan ke saldo Anda.
+              </div>
+
+              <button type="submit" class="h-11 w-full bg-slate-900 hover:bg-black active:scale-95 text-white font-bold rounded-xl shadow-sm transition cursor-pointer mt-2">
+                Simpan & Aktifkan Lahan
+              </button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleSaveNewGarage(e) {
+      e.preventDefault();
+      const name = document.getElementById('new_garage_name').value;
+      const address = document.getElementById('new_garage_address').value;
+      const carSlots = parseInt(document.getElementById('new_garage_car_slots').value) || 2;
+      const bikeSlots = parseInt(document.getElementById('new_garage_bike_slots').value) || 5;
+
+      const newGar = {
+        id: String(Date.now()),
+        name: name,
+        address: address,
+        slotsCar: carSlots,
+        slotsBike: bikeSlots,
+        occupiedCar: 0,
+        occupiedBike: 0,
+        priceFlatCar: 8000,
+        priceFlatBike: 3000,
+        isOpen: true
+      };
+
+      myGarages.unshift(newGar);
+      state.addGarageModal = false;
+      showToast('Lahan "' + name + '" berhasil didaftarkan');
+      render();
+    }
+
+    // ==========================================
+    // SCREEN 9: ATTENDANT SCANNER (ALUR 7.2 C.1 & C.2)
+    // ==========================================
+    function renderAttendant() {
+      const isDriverWaiting = state.ticketStatus === 'WAITING_CHECKIN';
+
+      return `
+        <div class="flex flex-col min-h-screen bg-slate-50 p-5 justify-between relative pb-28" id="screen-attendant">
+          <div>
+            <div class="flex justify-between items-center mb-6">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-200/80 px-2 py-0.5 rounded">Operasional Lapangan & QC</span>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight mt-1">Terminal Juru Parkir</h1>
+                <p class="text-xs text-slate-500">Pos Garasi: Garasi Pak Budi - Suhat (#JK-04)</p>
+              </div>
+              <button onclick="setScreen('PROFILE')" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 cursor-pointer">${Icons.user}</button>
+            </div>
+
+            <!-- Upah Bagi Hasil Jukir 40% -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between mb-4">
+              <div>
+                <span class="text-[10px] font-semibold uppercase text-slate-400">Upah Bagi Hasil Jukir (40%)</span>
+                <div class="text-xl font-black text-slate-900 mt-0.5">${formatIDR(state.attendantEarningsToday)}</div>
+                <div class="text-[10px] text-slate-500">${state.totalVehiclesManagedToday} Kendaraan Dilayani Hari Ini</div>
+              </div>
+              <span class="px-2.5 py-1 bg-slate-100 text-slate-800 font-semibold text-xs rounded-xl">Shift Siang</span>
+            </div>
+
+            <!-- Antrean Kedatangan Pelanggan -->
+            ${isDriverWaiting ? `
+              <div class="mb-4 p-3.5 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wide">Antrean Tiba di Garasi:</span>
+                  <div class="font-bold text-xs text-slate-900 mt-0.5">${state.activeBooking.plate} • #${state.activeBooking.code}</div>
+                  <div class="text-[11px] text-amber-700">Deposit terbayar lunas, siap scan masuk</div>
+                </div>
+                <button onclick="state.scannerModal = true; render();" class="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-semibold active:scale-95 transition cursor-pointer shadow-sm">
+                  Scan Masuk
+                </button>
+              </div>
+            ` : ''}
+
+            <!-- Dua Tombol Scanner Lapangan Berukuran Besar -->
+            <div class="space-y-3.5 my-2">
+              <!-- C.1 TOMBOL SCAN CHECK-IN MASUK -->
+              <button onclick="state.scannerModal = true; render();" class="w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white h-28 rounded-2xl flex flex-col items-center justify-center gap-1 shadow-md transition text-center cursor-pointer">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white">${Icons.scan}</div>
+                <div>
+                  <div class="text-base font-bold tracking-tight">1. SCAN MASUK (Check-In)</div>
+                  <div class="text-xs text-slate-400">Pindai QR E-Tiket saat pengendara tiba & mulai argometer</div>
+                </div>
+              </button>
+
+              <!-- C.2 TOMBOL SCAN CHECK-OUT KELUAR -->
+              <button onclick="state.overstayModal = true; render();" class="w-full bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-900 border border-slate-200 h-28 rounded-2xl flex flex-col items-center justify-center gap-1 shadow-sm transition text-center cursor-pointer">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">${Icons.clock}</div>
+                <div>
+                  <div class="text-base font-bold tracking-tight">2. SCAN KELUAR (Check-Out)</div>
+                  <div class="text-xs text-slate-500">Hentikan argometer, kalkulasi durasi & lepas slot</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          ${renderBottomNav('ATTENDANT')}
+          ${renderScannerModal()}
+          ${renderOverstayModal()}
+        </div>
+      `;
+    }
+
+    // MODAL SCANNER SIMULATION
+    function renderScannerModal() {
+      if (!state.scannerModal) return '';
+      return `
+        <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl relative">
+            <button onclick="state.scannerModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
+            <h3 class="text-base font-bold text-slate-900">Pemindai QR Tiket Masuk</h3>
+            <p class="text-xs text-slate-500 mt-1">Arahkan kamera ke QR code pada layar pengendara</p>
+
+            <div class="relative w-52 h-52 mx-auto my-6 bg-slate-900 rounded-2xl overflow-hidden flex items-center justify-center border-2 border-slate-700">
+              <div class="absolute inset-x-4 h-0.5 bg-emerald-400 scan-line shadow-[0_0_8px_#34d399]"></div>
+              <div class="text-slate-600 scale-150">${Icons.scan}</div>
+              <div class="absolute bottom-2 text-[10px] text-slate-400 font-mono">Deteksi QR Aktif...</div>
+            </div>
+
+            <div class="space-y-2">
+              <button onclick="confirmCheckIn()" class="h-11 w-full bg-slate-900 hover:bg-black active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm cursor-pointer transition">
+                Simulasi: Tiket Terdeteksi (Konfirmasi Masuk)
+              </button>
+              <button onclick="state.scannerModal = false; render();" class="h-10 w-full bg-slate-100 text-slate-600 font-semibold text-xs rounded-xl cursor-pointer">
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // SCREEN 10: ATTENDANT LOGS
+    // ==========================================
+    function renderAttendantLogs() {
+      return `
+        <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-attendant-logs">
+          <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+            <button onclick="setScreen('ATTENDANT')" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 active:scale-90 transition cursor-pointer">${Icons.arrowLeft}</button>
+            <h2 class="font-bold text-slate-900 text-sm">Log Kendaraan Lapangan</h2>
+            <div class="w-10"></div>
+          </div>
+
+          <div class="p-4 space-y-3">
+            <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-semibold text-slate-400 uppercase">Monitoring Slot Garasi</span>
+                <div class="text-xl font-bold text-slate-900 mt-0.5">${state.parkedVehicles.length} Kendaraan Terdata</div>
+              </div>
+              <span class="px-2.5 py-1 bg-slate-100 text-slate-800 font-semibold text-xs rounded-xl">Kondisi Aman</span>
+            </div>
+
+            <div class="space-y-2">
+              ${state.parkedVehicles.map((v, i) => `
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
+                      #0${i + 1}
+                    </div>
+                    <div>
+                      <div class="font-mono font-bold text-slate-900 text-sm">${v.plate}</div>
+                      <div class="text-[11px] text-slate-500 font-medium">${v.type} • ${v.slot}</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[10px] text-slate-400">Durasi Aktual</div>
+                    <div class="text-xs font-mono font-bold text-emerald-600">${v.durationNow}</div>
+                    <span class="text-[9px] text-slate-400 font-medium">${v.note}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          ${renderBottomNav('ATTENDANT_LOGS')}
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // SCREEN 11: PROFILE & ROLE SWITCHER
+    // ==========================================
+    function renderProfile() {
+      return `
+        <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-profile">
+          <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+            <button onclick="setScreen(state.userRole === 'DRIVER' ? 'HOME' : (state.userRole === 'LANDOWNER' ? 'LANDOWNER' : 'ATTENDANT'))" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 active:scale-90 transition cursor-pointer">${Icons.arrowLeft}</button>
+            <h2 class="font-bold text-slate-900 text-sm">Profil Akun & Peran</h2>
+            <div class="w-10"></div>
+          </div>
+
+          <div class="p-4 space-y-4">
+            <!-- Profil Card -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-sm">RP</div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">${state.currentUser.name}</h3>
+                  <p class="text-[11px] text-slate-500">${state.currentUser.email} • ${state.currentUser.phone}</p>
+                <div class="mt-1 flex gap-1.5">
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-semibold">Mode: ${state.userRole}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Role Switcher Panel Demo -->
+            <div class="bg-slate-900 text-white p-4 rounded-2xl shadow-sm space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Ganti Peran Pengguna (RBAC Multi-Sided)</span>
+                <span class="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">DEMO READY</span>
+              </div>
+              <p class="text-[11px] text-slate-400">Pilih salah satu peran untuk melihat antarmuka masing-masing pihak:</p>
+              <div class="grid grid-cols-3 gap-2 pt-1">
+                <button onclick="setUserRole('DRIVER')" class="py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${state.userRole === 'DRIVER' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
+                  <span>${Icons.car}</span> <span>Driver</span>
+                </button>
+                <button onclick="setUserRole('LANDOWNER')" class="py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${state.userRole === 'LANDOWNER' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
+                  <span>${Icons.building}</span> <span>Pemilik</span>
+                </button>
+                <button onclick="setUserRole('ATTENDANT')" class="py-2 rounded-xl text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${state.userRole === 'ATTENDANT' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
+                  <span>${Icons.userCheck}</span> <span>Jukir</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Saldo E-Wallet -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex justify-between items-center">
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold uppercase">Saldo Dompet RuangPay</span>
+                <div class="text-lg font-black text-slate-900">${formatIDR(state.walletBalance)}</div>
+              </div>
+              <button onclick="state.topUpModal = true; render();" class="h-9 px-3 bg-slate-900 hover:bg-black active:scale-95 text-white rounded-xl text-xs font-semibold transition cursor-pointer flex items-center gap-1">
+                <span>${Icons.plus}</span> <span>Top Up</span>
+              </button>
+            </div>
+
+            <!-- Menu Pusat Bantuan & Layanan Pelanggan -->
+            <button onclick="state.faqModal = true; render();" class="w-full h-14 min-h-[54px] bg-white hover:bg-slate-50 active:scale-[0.99] rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between text-left transition cursor-pointer">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+                  ${Icons.helpCircle}
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-slate-900">Pusat Bantuan & FAQ</h4>
+                  <p class="text-[10px] text-slate-500">Panduan reservasi, tarif flat, dan bantuan operasional</p>
+                </div>
+              </div>
+              <span class="text-slate-400">${Icons.chevronRight}</span>
+            </button>
+
+            <!-- Tombol Keluar Akun -->
+            <button onclick="setScreen('LOGIN'); showToast('Anda telah keluar dari akun');" class="w-full h-14 min-h-[54px] bg-white hover:bg-rose-50/50 active:scale-[0.99] border border-slate-200 text-rose-600 rounded-2xl font-semibold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+              <span>${Icons.logOut}</span>
+              <span>Keluar Akun (Logout)</span>
+            </button>
+          </div>
+
+          ${renderBottomNav('PROFILE')}
+          ${renderTopupModal()}
+          ${renderFaqModal()}
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // MODAL TOP UP SALDO
+    // ==========================================
+    function renderTopupModal() {
+      if (!state.topUpModal) return '';
+      return `
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-xl relative">
+            <button onclick="state.topUpModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
+            <div class="w-12 h-12 bg-slate-100 text-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-3 font-bold text-xl">${Icons.wallet}</div>
+            <h3 class="text-base font-bold text-slate-900">Isi Saldo RuangPay</h3>
+            <p class="text-xs text-slate-500 mt-1">Pilih nominal saldo yang ingin ditambahkan:</p>
+            <div class="grid grid-cols-3 gap-2 my-5">
+              <button onclick="state.walletBalance += 20000; state.topUpModal = false; showToast('Top Up Rp 20.000 Berhasil'); render();" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-center active:scale-95 transition cursor-pointer">
+                <div class="font-bold text-slate-900 text-sm">+20k</div><div class="text-[10px] text-slate-400">Rp 20.000</div>
+              </button>
+              <button onclick="state.walletBalance += 50000; state.topUpModal = false; showToast('Top Up Rp 50.000 Berhasil'); render();" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-center active:scale-95 transition cursor-pointer">
+                <div class="font-bold text-slate-900 text-sm">+50k</div><div class="text-[10px] text-slate-400">Rp 50.000</div>
+              </button>
+              <button onclick="state.walletBalance += 100000; state.topUpModal = false; showToast('Top Up Rp 100.000 Berhasil'); render();" class="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-center active:scale-95 transition cursor-pointer">
+                <div class="font-bold text-slate-900 text-sm">+100k</div><div class="text-[10px] text-slate-400">Rp 100.000</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // MODAL WITHDRAW SALDO PEMILIK LAHAN
+    // ==========================================
+    function renderWithdrawModal() {
+      if (!state.withdrawModal) return '';
+      return `
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-xl relative">
+            <button onclick="state.withdrawModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
+            <h3 class="text-base font-bold text-slate-900">Tarik Saldo Garasi</h3>
+            <p class="text-xs text-slate-500 mt-1">Saldo tersedia: <strong class="text-slate-900">${formatIDR(state.landownerBalance)}</strong></p>
+            <div class="my-4 text-left space-y-3">
+              <div>
+                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Rekening Bank Pencairan</label>
+                <div class="p-3 bg-slate-100 rounded-xl text-xs font-semibold text-slate-800">BCA 8820-192-331 (Budi Santoso)</div>
+              </div>
+            </div>
+            <button onclick="state.landownerBalance -= 100000; state.withdrawModal = false; showToast('Pencairan Rp 100.000 berhasil diproses'); render();" class="h-11 w-full bg-slate-900 hover:bg-black active:scale-95 text-white rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
+              Konfirmasi Tarik Rp 100.000
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // MODAL FAQ / PUSAT BANTUAN
+    // ==========================================
+    function renderFaqModal() {
+      if (!state.faqModal) return '';
+      return `
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-left shadow-2xl relative max-h-[85vh] overflow-y-auto">
+            <button onclick="state.faqModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
+            <h3 class="text-base font-bold text-slate-900">Ketentuan & Alur Penggunaan</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Panduan alur sistem RuangParkir</p>
+
+            <div class="space-y-3 mt-4 text-xs text-slate-700">
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="font-bold text-slate-900">1. Sistem Pembayaran Deposit</div>
+                <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Pengendara membayar deposit tarif flat 3 jam di muka sebagai jaminan penguncian slot agar mitra terhindar dari risiko pembatalan (no-show).</div>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="font-bold text-slate-900">2. Argometer Berjalan di Lapangan</div>
+                <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Argometer waktu baru mulai berdetik ketika juru parkir memindai QR e-tiket saat Anda tiba di lokasi.</div>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="font-bold text-slate-900">3. Auto-Settlement Overstay</div>
+                <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Jika keluar &le; 3 jam, tidak ada biaya tambahan. Jika &gt; 3 jam, penyesuaian tarif Rp 1.000/jam ekstra dipotong otomatis dari e-wallet.</div>
+              </div>
+            </div>
+
+            <button onclick="state.faqModal = false; render();" class="mt-4 h-11 w-full bg-slate-900 text-white rounded-xl text-xs font-semibold cursor-pointer">
+              Tutup Panduan
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // MODAL CHECK-OUT & OVERSTAY AUTO-SETTLEMENT (ALUR 7.2 A.4 & C.2)
+    // ==========================================
+    function renderOverstayModal() {
+      if (!state.overstayModal) return '';
+
+      const depositPaid = state.activeBooking ? state.activeBooking.depositPaid : 8000;
+      let actualDurationText = "1 Jam 45 Menit";
+      let fineAmount = 0;
+      let isOverstay = false;
+      let statusBadge = "Dalam Kuota Flat (Rp 0 Tambahan)";
+      let explanation = "Durasi aktual 1 jam 45 menit masih berada dalam batas kuota flat 3 jam pertama yang telah terbayar lunas. Tidak ada biaya tambahan yang ditagih.";
+
+      if (state.overstayScenario === 'scenario_4h') {
+        actualDurationText = "4 Jam";
+        fineAmount = 1000;
+        isOverstay = true;
+        statusBadge = "Kelebihan 1 Jam Ekstra (+Rp 1.000)";
+        explanation = "Durasi aktual 4 jam telah melebihi batas flat 3 jam sebesar 1 jam. Dikenakan penyesuaian tarif Rp 1.000 (dipotong otomatis dari e-wallet).";
+      } else if (state.overstayScenario === 'scenario_5h') {
+        actualDurationText = "5 Jam";
+        fineAmount = 2000;
+        isOverstay = true;
+        statusBadge = "Kelebihan 2 Jam Ekstra (+Rp 2.000)";
+        explanation = "Durasi aktual 5 jam telah melebihi batas flat 3 jam sebesar 2 jam. Dikenakan penyesuaian tarif Rp 2.000 (2 jam x Rp 1.000).";
+      } else if (state.overstayScenario === 'scenario_6h') {
+        actualDurationText = "6 Jam";
+        fineAmount = 3000;
+        isOverstay = true;
+        statusBadge = "Kelebihan 3 Jam Ekstra (+Rp 3.000)";
+        explanation = "Durasi aktual 6 jam telah melebihi batas flat 3 jam sebesar 3 jam. Dikenakan penyesuaian tarif Rp 3.000 (3 jam x Rp 1.000).";
+      }
+
+      const totalTransaction = depositPaid + fineAmount;
+      const shareLandowner = totalTransaction * 0.4;
+      const shareJukir = totalTransaction * 0.4;
+      const sharePlatform = totalTransaction * 0.2;
+
+      return `
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-center shadow-xl relative max-h-[92vh] overflow-y-auto">
+            <button onclick="state.overstayModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
+
+            <div class="${isOverstay ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-700'} p-3 rounded-2xl w-fit mx-auto mb-2">
+              ${isOverstay ? Icons.clock : Icons.check}
+            </div>
+
+            <h3 class="text-base font-bold text-slate-900">Verifikasi Check-Out Kendaraan</h3>
+            <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${isOverstay ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'}">
+              ${statusBadge}
+            </span>
+
+            <!-- Skenario Simulasi Demo Durasi Aktual -->
+            <div class="my-3 p-2.5 bg-slate-100 rounded-2xl text-left border border-slate-200">
+              <span class="text-[10px] font-semibold text-slate-500 uppercase block mb-1.5">Simulasi Durasi Aktual (Demo):</span>
+              <div class="grid grid-cols-4 gap-1 text-[10px] font-semibold text-center">
+                <button onclick="state.overstayScenario = 'scenario_1h45m'; render();" class="py-1.5 rounded-xl transition cursor-pointer ${state.overstayScenario === 'scenario_1h45m' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-700'}">1j 45m<br><span class="text-[9px] font-normal">Rp 0</span></button>
+                <button onclick="state.overstayScenario = 'scenario_4h'; render();" class="py-1.5 rounded-xl transition cursor-pointer ${state.overstayScenario === 'scenario_4h' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-700'}">4 Jam<br><span class="text-[9px] font-normal">+1k</span></button>
+                <button onclick="state.overstayScenario = 'scenario_5h'; render();" class="py-1.5 rounded-xl transition cursor-pointer ${state.overstayScenario === 'scenario_5h' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-700'}">5 Jam<br><span class="text-[9px] font-normal">+2k</span></button>
+                <button onclick="state.overstayScenario = 'scenario_6h'; render();" class="py-1.5 rounded-xl transition cursor-pointer ${state.overstayScenario === 'scenario_6h' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-700'}">6 Jam<br><span class="text-[9px] font-normal">+3k</span></button>
+              </div>
+            </div>
+
+            <!-- Rincian Evaluasi Durasi -->
+            <div class="space-y-1.5 text-xs text-left bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+              <div class="flex justify-between"><span class="text-slate-500">Deposit Awal:</span><span class="font-bold text-slate-800">${formatIDR(depositPaid)} (Flat 3 Jam)</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Durasi Aktual:</span><span class="font-bold text-slate-900">${actualDurationText}</span></div>
+              <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
+                <span class="font-bold text-slate-900">Penyesuaian Biaya (Overstay):</span>
+                <span class="font-bold text-sm ${isOverstay ? 'text-amber-600' : 'text-emerald-600'}">${formatIDR(fineAmount)}</span>
+              </div>
+            </div>
+
+            <!-- Rincian Bagi Hasil 40:40:20 -->
+            <div class="my-2.5 p-2.5 bg-slate-50 rounded-2xl border border-slate-200 text-left text-[11px] space-y-1">
+              <div class="font-bold text-slate-700 text-[10px] uppercase">Alokasi Bagi Hasil Total (${formatIDR(totalTransaction)}):</div>
+              <div class="flex justify-between text-slate-500"><span>• Pemilik Lahan (40%):</span><span class="font-bold text-slate-800">${formatIDR(shareLandowner)}</span></div>
+              <div class="flex justify-between text-slate-500"><span>• Mitra Jukir (40%):</span><span class="font-bold text-slate-800">${formatIDR(shareJukir)}</span></div>
+              <div class="flex justify-between text-slate-500"><span>• Platform RuangParkir (20%):</span><span class="font-bold text-slate-800">${formatIDR(sharePlatform)}</span></div>
+            </div>
+
+            <p class="my-2 text-[11px] text-slate-500 text-left leading-relaxed">
+              ${explanation}
+            </p>
+
+            <button onclick="handleCheckoutSettlement(${fineAmount}, ${totalTransaction}, '${actualDurationText}')" class="h-14 min-h-[52px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2">
+              <span>Konfirmasi Selesai (${isOverstay ? `Auto-Debit ${formatIDR(fineAmount)}` : 'Lunas Rp 0 Tambahan'})</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleCheckoutSettlement(fineAmount, totalTransaction, actualDurationText) {
+      if (fineAmount > 0) {
+        state.walletBalance -= fineAmount;
+      }
+
+      const landownerShare = totalTransaction * 0.4;
+      const jukirShare = totalTransaction * 0.4;
+
+      state.landownerBalance += Math.round(landownerShare);
+      state.todayRevenue += Math.round(landownerShare);
+      state.attendantEarningsToday += Math.round(jukirShare);
+      state.totalVehiclesManagedToday += 1;
+
+      const plate = state.activeBooking.plate;
+      state.parkedVehicles = state.parkedVehicles.filter(v => v.plate !== plate);
+
+      state.ticketStatus = 'FINISHED';
+      state.overstayModal = false;
+
+      if (state.historyList[0]) {
+        state.historyList[0].status = 'Selesai';
+        state.historyList[0].duration = `${actualDurationText} (Aktual)`;
+        state.historyList[0].overstay = fineAmount;
+        state.historyList[0].cost = totalTransaction;
+      }
+
+      showToast(`Check-out selesai. Bagi hasil 40:40:20 berhasil disalurkan.`);
+      setScreen('HOME');
+    }
+
+    // ==========================================
+    // MAIN RENDER CONTROLLER
+    // ==========================================
+    function render() {
+      const app = document.getElementById('app');
+      let content = '';
+
+      switch (state.currentScreen) {
+        case 'SPLASH':
+          content = renderSplash();
+          break;
+        case 'LOGIN':
+          content = renderLogin();
+          break;
+        case 'HOME':
+          content = renderHome();
+          break;
+        case 'DETAIL':
+          content = renderDetail();
+          break;
+        case 'CHECKOUT':
+          content = renderCheckout();
+          break;
+        case 'TICKET':
+          content = renderTicket();
+          break;
+        case 'DRIVER_HISTORY':
+          content = renderDriverHistory();
+          break;
+        case 'LANDOWNER':
+          content = renderLandowner();
+          break;
+        case 'LANDOWNER_MANAGE':
+          content = renderLandownerManage();
+          break;
+        case 'ATTENDANT':
+          content = renderAttendant();
+          break;
+        case 'ATTENDANT_LOGS':
+          content = renderAttendantLogs();
+          break;
+        case 'PROFILE':
+          content = renderProfile();
+          break;
+        default:
+          content = renderHome();
+      }
+
+      app.innerHTML = `
+        ${renderGlobalHeader()}
+        ${renderToast()}
+        ${content}
+      `;
+    }
+
+    // Initial Execution
+    render();
+  </script>
+</body>
+
+</html>
