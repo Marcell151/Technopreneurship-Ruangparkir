@@ -47,19 +47,40 @@
       }
     }
 
-    /* Phone mockup frame containment */
-    .phone-screen {
-      transform: translate3d(0, 0, 0);
-      -webkit-transform: translate3d(0, 0, 0);
-      contain: paint;
+    /* Phone mockup frame containment (DESKTOP ONLY) */
+    @media (min-width: 640px) {
+      .phone-screen {
+        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+      }
+      .phone-screen .min-h-screen {
+        min-height: 100%;
+      }
+      .phone-screen .h-screen {
+        height: 100%;
+      }
     }
 
-    .phone-screen .min-h-screen {
-      min-height: 100%;
-    }
-
-    .phone-screen .h-screen {
-      height: 100%;
+    /* Fullscreen Responsive Mobile View (SMARTPHONE / HP) */
+    @media (max-width: 639px) {
+      html, body {
+        height: 100%;
+        background-color: #ffffff !important;
+      }
+      #device-container, #device-wrapper, #phone-frame, .phone-screen, #app {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 100dvh !important;
+        max-width: 100% !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+      }
+      #screen-home {
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+      }
     }
   </style>
 </head>
@@ -108,7 +129,7 @@
 
           <!-- Top Dynamic Island & Status Bar -->
           <div id="phone-status-bar"
-            class="w-full bg-transparent absolute top-0 left-0 right-0 z-50 pointer-events-none px-6 pt-2.5 pb-2 flex justify-between items-center text-slate-800 text-[11px] font-semibold select-none transition-colors duration-200">
+            class="w-full bg-transparent absolute top-0 left-0 right-0 z-50 pointer-events-none px-6 pt-2.5 pb-2 hidden sm:flex justify-between items-center text-slate-800 text-[11px] font-semibold select-none transition-colors duration-200">
             <!-- Live Clock Indicator -->
             <span id="phone-clock" class="tracking-tight font-medium pl-1">09:41</span>
 
@@ -139,11 +160,11 @@
 
           <!-- App Screen Content (Scrollable Inner Container) -->
           <div id="app"
-            class="w-full h-full overflow-y-auto overflow-x-hidden hide-scrollbar relative flex flex-col text-slate-800 pt-7">
+            class="w-full h-full overflow-y-auto overflow-x-hidden hide-scrollbar relative flex flex-col text-slate-800 pt-0 sm:pt-7">
           </div>
 
           <!-- Bottom Home Indicator Bar (iOS Gesture Bar) -->
-          <div class="absolute bottom-1 left-0 right-0 z-50 pointer-events-none flex justify-center pb-1">
+          <div class="absolute bottom-1 left-0 right-0 z-50 pointer-events-none hidden sm:flex justify-center pb-1">
             <div id="phone-home-indicator" class="w-32 h-1 bg-slate-900/30 rounded-full transition-colors duration-200">
             </div>
           </div>
@@ -453,7 +474,7 @@
     function renderGlobalHeader() {
       if (['SPLASH', 'LOGIN'].includes(state.currentScreen)) return '';
       return `
-        <div class="fixed top-9 right-3 z-40">
+        <div class="fixed top-3 right-3 sm:top-9 z-40">
           <div class="bg-slate-900/90 backdrop-blur-md text-white text-[11px] font-semibold p-1 rounded-full shadow-lg border border-slate-700/80 flex items-center gap-0.5">
             <button onclick="setUserRole('DRIVER')" class="px-2.5 py-1 rounded-full transition-all flex items-center gap-1.5 cursor-pointer ${state.userRole === 'DRIVER' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'}">
               <span class="scale-90">${Icons.car}</span>
@@ -948,7 +969,7 @@
       const isBookmarked = state.bookmarkedSpots.includes(spot.id);
 
       return `
-        <div class="relative w-full h-screen overflow-hidden flex flex-col bg-slate-200" id="screen-home">
+        <div class="relative w-full h-full min-h-screen sm:min-h-0 sm:h-full overflow-hidden flex flex-col bg-slate-200" id="screen-home">
           <!-- Floating Header Pencarian -->
           <div class="absolute top-0 left-0 right-0 z-30 m-3.5 space-y-2">
             <div class="p-3 bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/80 flex justify-between items-center">
@@ -1076,7 +1097,7 @@
               <button onclick="toggleBookmark('${spot.id}')" class="w-12 h-12 min-h-[48px] bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center transition cursor-pointer border border-slate-200">
                 ${isBookmarked ? Icons.bookmarkFilled : Icons.bookmark}
               </button>
-              <button onclick="showToast('Rute navigasi ke ' + spot.shortName + ' dimulai');" class="w-12 h-12 min-h-[48px] bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center transition cursor-pointer border border-slate-200">
+              <button onclick="showToast('Rute navigasi ke ${spot.shortName} dimulai');" class="w-12 h-12 min-h-[48px] bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center transition cursor-pointer border border-slate-200">
                 ${Icons.navigation}
               </button>
             </div>
@@ -2526,7 +2547,7 @@
       const isDark = ['ATTENDANT', 'ATTENDANT_LOGS'].includes(state.currentScreen);
       const statusBar = document.getElementById('phone-status-bar');
       const homeBar = document.getElementById('phone-home-indicator');
-      if (statusBar) {
+      if (statusBar && statusBar.classList) {
         if (isDark) {
           statusBar.classList.remove('text-slate-800');
           statusBar.classList.add('text-white');
@@ -2585,8 +2606,8 @@
       if (!wrapper) return;
 
       if (window.innerWidth < 640) {
-        wrapper.style.transform = 'none';
-        if (container) container.style.height = 'auto';
+        wrapper.style.transform = '';
+        if (container) container.style.height = '';
         if (scaleLabel) scaleLabel.textContent = 'Mobile';
         return;
       }
