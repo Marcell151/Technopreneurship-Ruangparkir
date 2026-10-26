@@ -46,6 +46,7 @@
         opacity: 1;
       }
     }
+
     /* Phone mockup frame containment */
     .phone-screen {
       transform: translate3d(0, 0, 0);
@@ -63,64 +64,92 @@
   </style>
 </head>
 
-<body class="bg-slate-100/80 min-h-screen flex flex-col justify-center items-center p-0 sm:py-6 sm:px-4 antialiased overflow-x-hidden">
-  
-  <!-- Presentation Header on Desktop -->
-  <div class="hidden sm:flex items-center justify-between w-full max-w-[412px] mb-2.5 px-2 text-slate-500">
+<body
+  class="bg-slate-100/80 min-h-screen flex flex-col items-center p-0 sm:py-4 sm:px-4 antialiased overflow-x-hidden overflow-y-auto">
+
+  <!-- Presentation Header on Desktop (with Auto-Fit Zoom Controller) -->
+  <div class="hidden sm:flex items-center justify-between w-full max-w-[420px] mb-2 px-2 text-slate-500 z-10">
     <div class="flex items-center gap-2">
       <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
       <span class="text-xs font-bold tracking-tight text-slate-800">RuangParkir</span>
-      <span class="text-[10px] px-1.5 py-0.5 rounded bg-white text-slate-600 border border-slate-200 shadow-2xs font-mono">Mobile Prototype</span>
+      <span
+        class="text-[10px] px-1.5 py-0.5 rounded bg-white text-slate-600 border border-slate-200 shadow-2xs font-mono">Prototype</span>
     </div>
-    <span class="text-[11px] font-medium text-slate-500">Live Device View</span>
+
+    <!-- Auto-Fit Laptop Resolution Controls -->
+    <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-0.5 shadow-2xs">
+      <button onclick="setScaleMode('FIT')" id="btn-scale-fit"
+        title="Sesuaikan otomatis dengan resolusi layar laptop/PC"
+        class="px-2 py-0.5 text-[10px] font-semibold rounded transition cursor-pointer bg-slate-900 text-white">Auto
+        Fit</button>
+      <button onclick="setScaleMode('100')" id="btn-scale-100" title="Ukuran asli 1:1"
+        class="px-2 py-0.5 text-[10px] font-semibold rounded transition cursor-pointer text-slate-600 hover:text-slate-900">100%</button>
+      <span id="scale-label" class="text-[10px] text-slate-400 font-mono px-1">Fit</span>
+    </div>
   </div>
 
-  <!-- Outer Realistic Smartphone Mockup Frame -->
-  <div class="relative w-full sm:w-[412px] h-screen sm:h-[870px] sm:max-h-[94vh] bg-slate-900 sm:rounded-[54px] sm:p-[10px] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_10px_25px_-5px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.08)] sm:ring-1 sm:ring-slate-950 flex flex-col justify-between transition-all">
-    
-    <!-- Phone Hardware Side Buttons (Desktop Only) -->
-    <div class="hidden sm:block absolute -left-[13px] top-28 w-[3px] h-8 bg-slate-700 rounded-l-xs"></div>
-    <div class="hidden sm:block absolute -left-[13px] top-40 w-[3px] h-12 bg-slate-700 rounded-l-xs"></div>
-    <div class="hidden sm:block absolute -left-[13px] top-56 w-[3px] h-12 bg-slate-700 rounded-l-xs"></div>
-    <div class="hidden sm:block absolute -right-[13px] top-36 w-[3px] h-16 bg-slate-700 rounded-r-xs"></div>
+  <!-- Device Container with Auto-Scaled Proportions -->
+  <div id="device-container" class="relative flex justify-center w-full sm:w-[420px] transition-all">
+    <div id="device-wrapper" class="origin-top transition-transform duration-150">
 
-    <!-- Phone Screen Bezel Inner Container -->
-    <div class="phone-screen relative w-full h-full bg-slate-50 sm:rounded-[44px] overflow-hidden flex flex-col shadow-inner">
-      
-      <!-- Top Dynamic Island & Status Bar -->
-      <div id="phone-status-bar" class="w-full bg-transparent absolute top-0 left-0 right-0 z-50 pointer-events-none px-6 pt-2.5 pb-2 flex justify-between items-center text-slate-800 text-[11px] font-semibold select-none transition-colors duration-200">
-        <!-- Live Clock Indicator -->
-        <span id="phone-clock" class="tracking-tight font-medium pl-1">09:41</span>
-        
-        <!-- Dynamic Island Hardware Pill -->
-        <div class="w-24 h-5 bg-black rounded-full flex items-center justify-end pr-2.5 shadow-sm">
-          <div class="w-2 h-2 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center">
-            <div class="w-0.5 h-0.5 bg-blue-950 rounded-full"></div>
-          </div>
-        </div>
+      <!-- Outer Realistic Smartphone Mockup Frame (Fixed Aspect Ratio 390x844 iPhone Standard) -->
+      <div id="phone-frame"
+        class="relative w-full sm:w-[390px] h-screen sm:h-[844px] bg-slate-900 sm:rounded-[54px] sm:p-[10px] sm:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_10px_25px_-5px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.08)] sm:ring-1 sm:ring-slate-950 flex flex-col justify-between transition-all">
 
-        <!-- System Icons (Signal, Wifi, Battery) -->
-        <div class="flex items-center gap-1.5 pr-1">
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M2 17h2v3H2zm4-3h2v6H6zm4-3h2v9h-2zm4-4h2v13h-2zm4-4h2v17h-2z"/></svg>
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0012 4zm0 4c3.34 0 6.43 1.14 8.92 3.05L12 19.77 3.08 11.05C5.57 9.14 8.66 8 12 8z"/></svg>
-          <div class="flex items-center">
-            <div class="w-5 h-2.5 border border-current rounded-xs p-0.5 flex items-center">
-              <div class="h-full w-full bg-current rounded-2xs"></div>
+        <!-- Phone Hardware Side Buttons (Desktop Only) -->
+        <div class="hidden sm:block absolute -left-[13px] top-28 w-[3px] h-8 bg-slate-700 rounded-l-xs"></div>
+        <div class="hidden sm:block absolute -left-[13px] top-40 w-[3px] h-12 bg-slate-700 rounded-l-xs"></div>
+        <div class="hidden sm:block absolute -left-[13px] top-56 w-[3px] h-12 bg-slate-700 rounded-l-xs"></div>
+        <div class="hidden sm:block absolute -right-[13px] top-36 w-[3px] h-16 bg-slate-700 rounded-r-xs"></div>
+
+        <!-- Phone Screen Bezel Inner Container -->
+        <div
+          class="phone-screen relative w-full h-full bg-slate-50 sm:rounded-[44px] overflow-hidden flex flex-col shadow-inner">
+
+          <!-- Top Dynamic Island & Status Bar -->
+          <div id="phone-status-bar"
+            class="w-full bg-transparent absolute top-0 left-0 right-0 z-50 pointer-events-none px-6 pt-2.5 pb-2 flex justify-between items-center text-slate-800 text-[11px] font-semibold select-none transition-colors duration-200">
+            <!-- Live Clock Indicator -->
+            <span id="phone-clock" class="tracking-tight font-medium pl-1">09:41</span>
+
+            <!-- Dynamic Island Hardware Pill -->
+            <div class="w-24 h-5 bg-black rounded-full flex items-center justify-end pr-2.5 shadow-sm">
+              <div class="w-2 h-2 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center">
+                <div class="w-0.5 h-0.5 bg-blue-950 rounded-full"></div>
+              </div>
             </div>
-            <div class="w-0.5 h-1 bg-current rounded-r-2xs ml-0.5"></div>
+
+            <!-- System Icons (Signal, Wifi, Battery) -->
+            <div class="flex items-center gap-1.5 pr-1">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M2 17h2v3H2zm4-3h2v6H6zm4-3h2v9h-2zm4-4h2v13h-2zm4-4h2v17h-2z" />
+              </svg>
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <path
+                  d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A16.88 16.88 0 0012 4zm0 4c3.34 0 6.43 1.14 8.92 3.05L12 19.77 3.08 11.05C5.57 9.14 8.66 8 12 8z" />
+              </svg>
+              <div class="flex items-center">
+                <div class="w-5 h-2.5 border border-current rounded-xs p-0.5 flex items-center">
+                  <div class="h-full w-full bg-current rounded-2xs"></div>
+                </div>
+                <div class="w-0.5 h-1 bg-current rounded-r-2xs ml-0.5"></div>
+              </div>
+            </div>
           </div>
+
+          <!-- App Screen Content (Scrollable Inner Container) -->
+          <div id="app"
+            class="w-full h-full overflow-y-auto overflow-x-hidden hide-scrollbar relative flex flex-col text-slate-800 pt-7">
+          </div>
+
+          <!-- Bottom Home Indicator Bar (iOS Gesture Bar) -->
+          <div class="absolute bottom-1 left-0 right-0 z-50 pointer-events-none flex justify-center pb-1">
+            <div id="phone-home-indicator" class="w-32 h-1 bg-slate-900/30 rounded-full transition-colors duration-200">
+            </div>
+          </div>
+
         </div>
       </div>
-
-      <!-- App Screen Content (Scrollable Inner Container) -->
-      <div id="app" class="w-full h-full overflow-y-auto overflow-x-hidden hide-scrollbar relative flex flex-col text-slate-800 pt-7">
-      </div>
-
-      <!-- Bottom Home Indicator Bar (iOS Gesture Bar) -->
-      <div class="absolute bottom-1 left-0 right-0 z-50 pointer-events-none flex justify-center pb-1">
-        <div id="phone-home-indicator" class="w-32 h-1 bg-slate-900/30 rounded-full transition-colors duration-200"></div>
-      </div>
-
     </div>
   </div>
 
@@ -162,7 +191,9 @@
         isFull: false,
         jukirName: 'Slamet Riyadi (ID: JK-04)',
         facilities: ['CCTV 24 Jam', 'Kanopi Beratap', 'Akses Jalan Lebar', 'Dijaga Jukir'],
-        photo: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=600&auto=format&fit=crop&q=80'
+        photo: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=600&auto=format&fit=crop&q=80',
+        top: '35%',
+        left: '18%'
       },
       {
         id: '2',
@@ -181,7 +212,9 @@
         isFull: false,
         jukirName: 'Agus Santoso (ID: JK-09)',
         facilities: ['Dijaga Jukir', 'Akses 24 Jam', 'Lantai Paving'],
-        photo: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600&auto=format&fit=crop&q=80'
+        photo: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600&auto=format&fit=crop&q=80',
+        top: '60%',
+        left: '52%'
       },
       {
         id: '3',
@@ -200,7 +233,9 @@
         isFull: false,
         jukirName: 'Bambang Irawan (ID: JK-12)',
         facilities: ['Khusus Roda Dua', 'Penerangan Terang', 'Dekat Pusat Kuliner'],
-        photo: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&auto=format&fit=crop&q=80'
+        photo: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&auto=format&fit=crop&q=80',
+        top: '28%',
+        left: '48%'
       }
     ];
 
@@ -209,7 +244,7 @@
     const DEMO_ACCOUNTS = {
       DRIVER: {
         role: 'DRIVER',
-        name: 'Budi Santoso',
+        name: 'User',
         phone: '0812-9876-5432',
         identifier: '081298765432',
         email: 'budi.santoso@gmail.com',
@@ -248,7 +283,9 @@
       loginPassword: '••••••••',
       showPassword: false,
       rememberMe: true,
-      registerModal: false, // DRIVER | LANDOWNER | ATTENDANT
+      registerModal: false,
+      ratingModal: false,
+      ratingScore: 5, // DRIVER | LANDOWNER | ATTENDANT
 
       // Filter & Search Peta
       searchQuery: '',
@@ -577,7 +614,7 @@
               </button>
               <button onclick="setUserRole('DRIVER')" class="h-12 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 rounded-xl font-medium text-xs transition cursor-pointer flex items-center justify-center gap-1.5 border border-slate-200">
                 <span>${Icons.car}</span>
-                <span>Mode Tamu</span>
+                <span>Mode Pengemudi</span>
               </button>
             </div>
             <div class="pt-2 text-center">
@@ -849,7 +886,7 @@
                 <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">Preset Akun Pengujian (1-Klik):</span>
                 <div class="grid grid-cols-3 gap-2">
                   <button onclick="selectLoginPreset('DRIVER')" class="p-2 rounded-xl text-left border transition cursor-pointer ${isDriver ? 'bg-slate-50 border-slate-900 ring-1 ring-slate-900' : 'bg-white border-slate-200 hover:border-slate-300'}">
-                    <div class="text-[11px] font-bold text-slate-900 truncate">Budi Santoso</div>
+                    <div class="text-[11px] font-bold text-slate-900 truncate">User</div>
                     <div class="text-[9px] text-slate-500">Driver Mobil</div>
                   </button>
                   <button onclick="selectLoginPreset('LANDOWNER')" class="p-2 rounded-xl text-left border transition cursor-pointer ${isLandowner ? 'bg-slate-50 border-slate-900 ring-1 ring-slate-900' : 'bg-white border-slate-200 hover:border-slate-300'}">
@@ -888,6 +925,14 @@
     // ==========================================
     // SCREEN 2: HOME MAP (DRIVER FLOW A.1)
     // ==========================================
+
+    function selectMapSpot(id) {
+      const found = SPOTS.find(item => item.id === id);
+      if (found) {
+        state.selectedSpot = found;
+        render();
+      }
+    }
     function renderHome() {
       // Filter logic
       let filteredSpots = SPOTS.filter(s => {
@@ -899,7 +944,7 @@
         return matchSearch;
       });
 
-      const spot = state.selectedSpot || filteredSpots[0] || SPOTS[0];
+      const spot = (filteredSpots.find(s => s.id === (state.selectedSpot && state.selectedSpot.id))) || filteredSpots[0] || SPOTS[0];
       const isBookmarked = state.bookmarkedSpots.includes(spot.id);
 
       return `
@@ -983,32 +1028,20 @@
               <div class="w-4 h-4 rounded-full bg-emerald-600 border-2 border-white shadow-md flex items-center justify-center"></div>
             </div>
 
-            <!-- Pin Garasi 1 -->
-            <div onclick="state.selectedSpot = SPOTS[0]; render();" class="absolute top-[35%] left-[18%] z-20 cursor-pointer active:scale-95 transition-transform">
-              <div class="px-2.5 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1 shadow-md transition-all ${spot.id === '1' ? 'bg-slate-900 text-white ring-2 ring-emerald-500 scale-105' : 'bg-white text-slate-800 border border-slate-200'}">
-                <span class="w-2 h-2 rounded-full ${SPOTS[0].availableSlots > 0 ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
-                <span>Garasi Pak Budi • Rp 8k</span>
-              </div>
-              <div class="w-2 h-2 ${spot.id === '1' ? 'bg-slate-900' : 'bg-white border-r border-b border-slate-200'} rotate-45 mx-auto -mt-1"></div>
-            </div>
-
-            <!-- Pin Garasi 2 -->
-            <div onclick="state.selectedSpot = SPOTS[1]; render();" class="absolute top-[60%] right-[10%] z-20 cursor-pointer active:scale-95 transition-transform">
-              <div class="px-2.5 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1 shadow-md transition-all ${spot.id === '2' ? 'bg-slate-900 text-white ring-2 ring-emerald-500 scale-105' : 'bg-white text-slate-800 border border-slate-200'}">
-                <span class="w-2 h-2 rounded-full ${SPOTS[1].availableSlots > 0 ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
-                <span>Garasi Bu Rina • Rp 8k</span>
-              </div>
-              <div class="w-2 h-2 ${spot.id === '2' ? 'bg-slate-900' : 'bg-white border-r border-b border-slate-200'} rotate-45 mx-auto -mt-1"></div>
-            </div>
-
-            <!-- Pin Garasi 3 -->
-            <div onclick="state.selectedSpot = SPOTS[2]; render();" class="absolute top-[28%] right-[16%] z-20 cursor-pointer active:scale-95 transition-transform">
-              <div class="px-2.5 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1 shadow-md transition-all ${spot.id === '3' ? 'bg-slate-900 text-white ring-2 ring-emerald-500 scale-105' : 'bg-white text-slate-800 border border-slate-200'}">
-                <span class="w-2 h-2 rounded-full ${SPOTS[2].availableSlots > 0 ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
-                <span>Lahan Merbabu • Rp 3k</span>
-              </div>
-              <div class="w-2 h-2 ${spot.id === '3' ? 'bg-slate-900' : 'bg-white border-r border-b border-slate-200'} rotate-45 mx-auto -mt-1"></div>
-            </div>
+            <!-- Dynamic Map Pins (Alur 7.2 A.1 LBS) -->
+              ${filteredSpots.map(s => {
+        const isSelected = spot && spot.id === s.id;
+        const priceBadge = s.category === 'Motor' ? `Rp ${s.priceMotor / 1000}k` : `Rp ${s.priceMobil / 1000}k`;
+        return `
+                  <div onclick="selectMapSpot('${s.id}')" style="top: ${s.top}; left: ${s.left};" class="absolute z-20 cursor-pointer active:scale-95 transition-all">
+                    <div class="px-2.5 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1 shadow-md transition-all ${isSelected ? 'bg-slate-900 text-white ring-2 ring-emerald-500 scale-105' : 'bg-white text-slate-800 border border-slate-200 hover:bg-slate-50'}">
+                      <span class="w-2 h-2 rounded-full ${s.availableSlots > 0 ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+                      <span>${s.shortName} • ${priceBadge}</span>
+                    </div>
+                    <div class="w-2 h-2 ${isSelected ? 'bg-slate-900' : 'bg-white border-r border-b border-slate-200'} rotate-45 mx-auto -mt-1"></div>
+                  </div>
+                `;
+      }).join('')}
           </div>
 
           <!-- Bottom Card Preview Garasi Terpilih -->
@@ -1072,14 +1105,14 @@
     function renderDetail() {
       const spot = state.selectedSpot || SPOTS[0];
       return `
-        <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-detail">
+        <div class="flex flex-col min-h-screen bg-slate-50" id="screen-detail">
           <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
             <button onclick="setScreen('HOME')" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 active:scale-90 transition cursor-pointer">${Icons.arrowLeft}</button>
             <h2 class="font-bold text-slate-900 text-sm">Detail Lahan Parkir</h2>
             <div class="w-10"></div>
           </div>
 
-          <div class="p-4 space-y-4">
+          <div class="p-4 space-y-4 pb-36">
             <!-- Cover Photo & Header -->
             <div class="relative rounded-2xl overflow-hidden h-48 bg-slate-900 shadow-sm">
               <img src="${spot.photo}" alt="${spot.name}" class="w-full h-full object-cover">
@@ -1149,6 +1182,7 @@
                 <strong>Prinsip Penggunaan Adil:</strong> Pembayaran di muka adalah deposit penguncian slot. Kelebihan waktu di atas 3 jam dihitung presisi berdasarkan durasi aktual saat keluar.
               </div>
             </div>
+            <div id="detail-bottom-spacer" class="h-28 w-full shrink-0"></div>
           </div>
 
           <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-lg">
@@ -1179,7 +1213,7 @@
             <div class="w-10"></div>
           </div>
 
-          <div class="p-4 space-y-3.5">
+          <div class="p-4 space-y-3.5 pb-40">
             <!-- Informasi Titik Garasi -->
             <div class="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
@@ -1362,6 +1396,7 @@
                 <span class="text-xl font-black text-slate-900">${formatIDR(finalPayNow)}</span>
               </div>
             </div>
+            <div id="checkout-bottom-spacer" class="h-28 w-full shrink-0"></div>
           </div>
 
           <!-- Bottom Action Bar -->
@@ -1557,15 +1592,49 @@
 
               <!-- Action Buttons Simulasi Antar Peran -->
               <div class="mt-5 space-y-2">
-                ${isWaiting ? `
-                  <button onclick="confirmCheckIn()" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-md">
-                    <span>${Icons.scan}</span>
-                    <span>[Simulasi Lapangan] Jukir Scan Masuk</span>
-                  </button>
-                ` : (isFinished ? `
-                  <button onclick="setScreen('HOME')" class="h-14 min-h-[54px] w-full bg-slate-900 text-white rounded-2xl font-bold text-sm transition cursor-pointer shadow-md flex items-center justify-center">
-                    Cari Tempat Parkir Baru
-                  </button>
+                                  ${isWaiting ? `
+                    <button onclick="confirmCheckIn()" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-md">
+                      <span>${Icons.scan}</span>
+                      <span>[Simulasi Lapangan] Jukir Scan Masuk</span>
+                    </button>
+                    <button onclick="showToast('Membuka WhatsApp Jukir (0812-3456-7890)...')" class="h-11 w-full bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
+                      <span class="text-emerald-600">${Icons.phone}</span>
+                      <span>Hubungi Jukir</span>
+                    </button>
+                                    ` : (isFinished ? `
+                    <!-- Kartu Penilaian & Ulasan Pasca Selesai Bayar -->
+                    ${state.historyList[0] && state.historyList[0].isRated ? `
+                      <div class="p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center justify-between text-left">
+                        <div class="flex items-center gap-2">
+                          <span class="text-amber-500 scale-110">${Icons.star}</span>
+                          <div>
+                            <div class="text-xs font-bold text-amber-900">Ulasan Parkir Terkirim</div>
+                            <div class="text-[10px] text-amber-700">Terima kasih atas masukan & rating Anda!</div>
+                          </div>
+                        </div>
+                        <span class="text-xs font-bold text-amber-900 bg-white/80 px-2 py-0.5 rounded-md border border-amber-200">5.0 ★</span>
+                      </div>
+                    ` : `
+                      <div class="p-4 bg-white border border-amber-200 rounded-2xl shadow-xs text-center space-y-2">
+                        <div class="text-xs font-bold text-slate-800">Bagaimana Pengalaman Parkir Anda?</div>
+                        <p class="text-[10px] text-slate-500">Beri ulasan untuk membantu mitra garasi warga</p>
+                        <div class="flex justify-center gap-1.5 py-1">
+                          ${[1, 2, 3, 4, 5].map(st => `
+                            <button type="button" onclick="state.ratingScore = ${st}; submitRatingModal();" class="p-1 hover:scale-125 transition cursor-pointer text-amber-400">
+                              ${Icons.star}
+                            </button>
+                          `).join('')}
+                        </div>
+                        <button onclick="state.ratingModal = true; render();" class="h-8 px-4 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition cursor-pointer">
+                          <span>${Icons.star}</span>
+                          <span>Tulis Ulasan & Bintang</span>
+                        </button>
+                      </div>
+                    `}
+                    <button onclick="setScreen('HOME')" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black text-white rounded-2xl font-bold text-sm transition cursor-pointer shadow-md flex items-center justify-center gap-2">
+                      <span>Cari Tempat Parkir Baru</span>
+                      <span>${Icons.arrowRight}</span>
+                    </button>
                 ` : `
                   <button onclick="state.overstayModal = true; render();" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-md">
                     <span>${Icons.clock}</span>
@@ -1586,6 +1655,16 @@
     // ==========================================
     // SCREEN 6: DRIVER HISTORY
     // ==========================================
+
+    function handleRatingHistory(code) {
+      const item = state.historyList.find(h => h.code === code);
+      if (item) {
+        state.ratingModal = true;
+        render();
+      } else {
+        showToast('Terima kasih! Penilaian 5 Bintang tersimpan.');
+      }
+    }
     function renderDriverHistory() {
       return `
         <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-driver-history">
@@ -1615,6 +1694,21 @@
                     <span class="font-bold text-slate-900 text-sm">${formatIDR(h.cost)}</span>
                   </div>
                 </div>
+                  ${h.status === 'Selesai' ? `
+                    <div class="pt-2 border-t border-slate-100 flex justify-between items-center">
+                      <div class="text-[11px] text-slate-400">Penilaian Layanan:</div>
+                      ${h.isRated ? `
+                        <span class="text-[11px] font-semibold text-amber-600 flex items-center gap-1">
+                          ${Icons.star} <span>5.0 (Ulasan Terkirim)</span>
+                        </span>
+                      ` : `
+                        <button onclick="handleRatingHistory('${h.code}')" class="h-7 px-2.5 bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-900 border border-amber-200/80 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition cursor-pointer shadow-2xs">
+                          <span class="text-amber-500">${Icons.star}</span>
+                          <span>Beri Ulasan</span>
+                        </button>
+                      `}
+                    </div>
+                  ` : ''}
               </div>
             `).join('')}
           </div>
@@ -2096,6 +2190,74 @@
     // ==========================================
     // MODAL TOP UP SALDO
     // ==========================================
+
+    // MODAL ULASAN & PENILAIAN (SELESAI BAYAR / PARKIR)
+    function renderRatingModal() {
+      if (!state.ratingModal) return '';
+      const spotName = state.activeBooking ? state.activeBooking.spotName : 'Garasi Pak Budi - Soekarno Hatta No. 45';
+      const score = state.ratingScore || 5;
+
+      return `
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl relative border border-slate-100">
+            <button onclick="state.ratingModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+              ${Icons.close}
+            </button>
+
+            <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl mx-auto flex items-center justify-center mb-3 border border-amber-200/60 shadow-xs">
+              <span class="scale-125">${Icons.star}</span>
+            </div>
+
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Pembayaran Selesai</span>
+            <h3 class="font-bold text-slate-900 text-base mt-2">Beri Penilaian & Ulasan</h3>
+            <p class="text-xs text-slate-500 mt-1 truncate max-w-[260px] mx-auto">${spotName}</p>
+
+            <!-- Bintang Interaktif (1 - 5) -->
+            <div class="flex items-center justify-center gap-2 py-3.5">
+              ${[1, 2, 3, 4, 5].map(st => `
+                <button type="button" onclick="state.ratingScore = ${st}; render();" class="p-1 cursor-pointer transition hover:scale-125 active:scale-95">
+                  <svg class="w-8 h-8 ${st <= score ? 'fill-amber-400 stroke-amber-400' : 'fill-slate-100 stroke-slate-300'}" viewBox="0 0 24 24">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                </button>
+              `).join('')}
+            </div>
+            <div class="text-xs font-bold text-amber-600 mb-3">
+              ${score === 5 ? 'Sangat Puas (5 Bintang)' : (score === 4 ? 'Puas (4 Bintang)' : (score === 3 ? 'Cukup (3 Bintang)' : 'Kurang Memuaskan'))}
+            </div>
+
+            <!-- Quick Feedback Tags -->
+            <div class="flex flex-wrap justify-center gap-1.5 mb-4">
+              ${['Jukir Ramah', 'Garasi Bersih', 'Aman & Terjaga', 'Akses Mudah'].map(tag => `
+                <span class="text-[10px] font-medium bg-slate-50 border border-slate-200 text-slate-600 px-2.5 py-1 rounded-full">
+                  ✓ ${tag}
+                </span>
+              `).join('')}
+            </div>
+
+            <div class="space-y-2">
+              <button onclick="submitRatingModal()" class="h-12 w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5">
+                <span>Kirim Penilaian & Ulasan</span>
+                <span>${Icons.arrowRight}</span>
+              </button>
+              <button onclick="state.ratingModal = false; render();" class="w-full text-xs text-slate-400 hover:text-slate-600 py-1.5 font-medium cursor-pointer">
+                Nanti Saja
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function submitRatingModal() {
+      state.ratingModal = false;
+      if (state.historyList[0]) {
+        state.historyList[0].isRated = true;
+      }
+      showToast(`Terima kasih! Penilaian ${state.ratingScore || 5} Bintang tersimpan.`);
+      render();
+    }
+
     function renderTopupModal() {
       if (!state.topUpModal) return '';
       return `
@@ -2135,7 +2297,7 @@
             <div class="my-4 text-left space-y-3">
               <div>
                 <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Rekening Bank Pencairan</label>
-                <div class="p-3 bg-slate-100 rounded-xl text-xs font-semibold text-slate-800">BCA 8820-192-331 (Budi Santoso)</div>
+                <div class="p-3 bg-slate-100 rounded-xl text-xs font-semibold text-slate-800">BCA 8820-192-331 (User)</div>
               </div>
             </div>
             <button onclick="state.landownerBalance -= 100000; state.withdrawModal = false; showToast('Pencairan Rp 100.000 berhasil diproses'); render();" class="h-11 w-full bg-slate-900 hover:bg-black active:scale-95 text-white rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
@@ -2300,8 +2462,9 @@
         state.historyList[0].cost = totalTransaction;
       }
 
-      showToast(`Check-out selesai. Bagi hasil 40:40:20 berhasil disalurkan.`);
-      setScreen('HOME');
+      showToast(`Pembayaran selesai. Bagi hasil 40:40:20 berhasil disalurkan.`);
+      state.ratingModal = true;
+      setScreen('TICKET');
     }
 
     // ==========================================
@@ -2352,9 +2515,10 @@
           content = renderHome();
       }
 
-            app.innerHTML = `
+      app.innerHTML = `
         ${renderGlobalHeader()}
         ${renderToast()}
+        ${renderRatingModal()}
         ${content}
       `;
 
@@ -2394,8 +2558,65 @@
     setInterval(updatePhoneClock, 1000);
     updatePhoneClock();
 
+
+    // Responsive Laptop & Monitor Auto-Fit Scaler
+    state.scaleMode = 'FIT';
+
+    function setScaleMode(mode) {
+      state.scaleMode = mode;
+      const btnFit = document.getElementById('btn-scale-fit');
+      const btn100 = document.getElementById('btn-scale-100');
+      if (btnFit && btn100) {
+        if (mode === 'FIT') {
+          btnFit.className = 'px-2 py-0.5 text-[10px] font-semibold rounded transition cursor-pointer bg-slate-900 text-white';
+          btn100.className = 'px-2 py-0.5 text-[10px] font-semibold rounded transition cursor-pointer text-slate-600 hover:text-slate-900';
+        } else {
+          btnFit.className = 'px-2 py-0.5 text-[10px] font-semibold rounded transition cursor-pointer text-slate-600 hover:text-slate-900';
+          btn100.className = 'px-2 py-0.5 text-[10px] font-semibold rounded transition cursor-pointer bg-slate-900 text-white';
+        }
+      }
+      autoScaleDevice();
+    }
+
+    function autoScaleDevice() {
+      const wrapper = document.getElementById('device-wrapper');
+      const container = document.getElementById('device-container');
+      const scaleLabel = document.getElementById('scale-label');
+      if (!wrapper) return;
+
+      if (window.innerWidth < 640) {
+        wrapper.style.transform = 'none';
+        if (container) container.style.height = 'auto';
+        if (scaleLabel) scaleLabel.textContent = 'Mobile';
+        return;
+      }
+
+      const deviceH = 844;
+      const availableH = window.innerHeight - 70; // 70px margin for top presentation bar & padding
+
+      let scale = 1;
+      if (state.scaleMode === 'FIT') {
+        scale = Math.min(1, Math.max(0.6, availableH / deviceH));
+      } else if (state.scaleMode === '100') {
+        scale = 1;
+      }
+
+      wrapper.style.transform = `scale(${scale})`;
+      wrapper.style.transformOrigin = 'top center';
+
+      if (container) {
+        container.style.height = `${Math.round(deviceH * scale)}px`;
+      }
+      if (scaleLabel) {
+        scaleLabel.textContent = `${Math.round(scale * 100)}%`;
+      }
+    }
+
+    window.addEventListener('resize', autoScaleDevice);
+
     // Initial Execution
     render();
+    autoScaleDevice();
   </script>
 </body>
 
