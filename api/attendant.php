@@ -236,13 +236,13 @@ try {
             $usedRuangPass
         );
 
-        // Charge overstay to Driver RuangPay if payment_method === SALDO
+        // Charge overstay to Driver RuangPay if payment_method === SALDO or RUANGPASS (auto-debit bila saldo cukup)
         $driverId = (int)$booking['driver_id'];
-        if ($overstayFee > 0 && $booking['payment_method'] === 'SALDO') {
+        if ($overstayFee > 0 && in_array($booking['payment_method'], ['SALDO', 'RUANGPASS'], true)) {
             $dStmt = $pdo->prepare('SELECT wallet_balance FROM users WHERE id = ? FOR UPDATE');
             $dStmt->execute([$driverId]);
             $driverBal = (int)$dStmt->fetchColumn();
-            if ($driverBal < $overstayFee) {
+            if ($booking['payment_method'] === 'SALDO' && $driverBal < $overstayFee) {
                 $pdo->rollBack();
                 jsonResponse([
                     'ok'      => false,
@@ -250,31 +250,42 @@ try {
                     'message' => 'Saldo RuangPay pengemudi kurang untuk overstay Rp ' . number_format($overstayFee, 0, ',', '.') . '.',
                 ], 402);
             }
-            $driverBal -= $overstayFee;
-            $pdo->prepare('UPDATE users SET wallet_balance = ? WHERE id = ?')->execute([$driverBal, $driverId]);
-            logWalletTx($pdo, $driverId, (int)$booking['id'], 'OVERSTAY_PAY', -$overstayFee, $driverBal, 'Auto-Debit Overstay #' . $booking['booking_code'] . ' (' . $durationLabel . ')');
+            if ($driverBal >= $overstayFee) {
+                $driverBal -= $overstayFee;
+                $pdo->prepare('UPDATE users SET wallet_balance = ? WHERE id = ?')->execute([$driverBal, $driverId]);
+                $ovDesc = $usedRuangPass
+                    ? 'Auto-Debit Overstay RuangPass #' . $booking['booking_code'] . ' (' . $durationLabel . ')'
+                    : 'Auto-Debit Overstay #' . $booking['booking_code'] . ' (' . $durationLabel . ')';
+                logWalletTx($pdo, $driverId, (int)$booking['id'], 'OVERSTAY_PAY', -$overstayFee, $driverBal, $ovDesc);
+            }
         }
 
-        // Get spot owner & attendant to credit 40% each
+        // Get spot owner & attendant to credit share (40% reguler OR Pool Rp1.000/pihak RuangPass + 40% overstay)
         $spStmt = $pdo->prepare('SELECT id, landowner_id, attendant_id FROM parking_spots WHERE id = ? FOR UPDATE');
         $spStmt->execute([(int)$booking['spot_id']]);
         $spot = $spStmt->fetch();
         $landownerId = (int)($spot['landowner_id'] ?? 2);
         $attendantId = (int)($booking['attendant_id'] ?: ($spot['attendant_id'] ?? 3));
 
-        // Credit Landowner (40%)
+        // Credit Landowner
         $lStmt = $pdo->prepare('SELECT wallet_balance FROM users WHERE id = ? FOR UPDATE');
         $lStmt->execute([$landownerId]);
         $ownerNewBal = (int)$lStmt->fetchColumn() + $split['share_landowner'];
         $pdo->prepare('UPDATE users SET wallet_balance = ? WHERE id = ?')->execute([$ownerNewBal, $landownerId]);
-        logWalletTx($pdo, $landownerId, (int)$booking['id'], 'REVENUE_SHARE', $split['share_landowner'], $ownerNewBal, 'Bagi Hasil Pemilik (40%) #' . $booking['booking_code']);
+        $ownerTxDesc = $usedRuangPass
+            ? 'Alokasi Pool RuangPass Pemilik (Rp1.000' . ($overstayFee > 0 ? ' + 40% Overstay' : '') . ') #' . $booking['booking_code']
+            : 'Bagi Hasil Pemilik (40%) #' . $booking['booking_code'];
+        logWalletTx($pdo, $landownerId, (int)$booking['id'], 'REVENUE_SHARE', $split['share_landowner'], $ownerNewBal, $ownerTxDesc);
 
-        // Credit Attendant (40%)
+        // Credit Attendant
         $aStmt = $pdo->prepare('SELECT wallet_balance FROM users WHERE id = ? FOR UPDATE');
         $aStmt->execute([$attendantId]);
         $jukirNewBal = (int)$aStmt->fetchColumn() + $split['share_jukir'];
         $pdo->prepare('UPDATE users SET wallet_balance = ? WHERE id = ?')->execute([$jukirNewBal, $attendantId]);
-        logWalletTx($pdo, $attendantId, (int)$booking['id'], 'REVENUE_SHARE', $split['share_jukir'], $jukirNewBal, 'Upah Bagi Hasil Jukir (40%) #' . $booking['booking_code']);
+        $jukirTxDesc = $usedRuangPass
+            ? 'Alokasi Pool RuangPass Jukir (Rp1.000' . ($overstayFee > 0 ? ' + 40% Overstay' : '') . ') #' . $booking['booking_code']
+            : 'Upah Bagi Hasil Jukir (40%) #' . $booking['booking_code'];
+        logWalletTx($pdo, $attendantId, (int)$booking['id'], 'REVENUE_SHARE', $split['share_jukir'], $jukirNewBal, $jukirTxDesc);
 
         // Release slot
         if ($booking['vehicle_type'] === 'MOBIL') {

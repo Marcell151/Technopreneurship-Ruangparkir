@@ -276,7 +276,12 @@ function applyAuthPayload(payload) {
   if (payload.user.default_plate) {
     state.plateNumber = payload.user.default_plate;
   }
-  if (payload.ruangPass) state.ruangPass = payload.ruangPass;
+  if (payload.ruangPass) {
+    state.ruangPass = payload.ruangPass;
+    if (payload.ruangPass.active && payload.ruangPass.remainingQuota > 0) {
+      state.useRuangPassCheckout = true;
+    }
+  }
   if (Array.isArray(payload.bookmarks)) state.bookmarkedSpots = payload.bookmarks;
 }
 
@@ -1625,17 +1630,26 @@ function renderCheckout() {
                   <div class="font-bold text-xs text-slate-900">Mobil (${spot.availableCar} sisa)</div>
                   <div class="text-[11px] font-semibold text-emerald-600">Rp 8.000 <span class="text-[10px] text-slate-400 font-normal">(Flat 3 Jam)</span></div>
                 </button>
-                <button type="button" ${spot.availableBike <= 0 ? 'disabled' : ''} onclick="state.vehicleType = 'MOTOR'; render();" class="p-3 rounded-xl border text-center transition flex flex-col items-center gap-1.5 ${spot.availableBike <= 0 ? 'opacity-40 cursor-not-allowed bg-slate-50 border-slate-200' : 'cursor-pointer ' + (state.vehicleType === 'MOTOR' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white')}">
+                <button type="button" ${spot.availableBike <= 0 ? 'disabled' : ''} onclick="state.vehicleType = 'MOTOR'; if(state.ruangPass.active && state.ruangPass.remainingQuota > 0){ state.useRuangPassCheckout = true; } render();" class="p-3 rounded-xl border text-center transition flex flex-col items-center gap-1.5 ${spot.availableBike <= 0 ? 'opacity-40 cursor-not-allowed bg-slate-50 border-slate-200' : 'cursor-pointer ' + (state.vehicleType === 'MOTOR' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white')}">
                   <div class="p-2 rounded-lg ${state.vehicleType === 'MOTOR' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}">${Icons.bike}</div>
                   <div class="font-bold text-xs text-slate-900">Motor (${spot.availableBike} sisa)</div>
-                  <div class="text-[11px] font-semibold text-emerald-600">Rp 3.000 <span class="text-[10px] text-slate-400 font-normal">(Flat 3 Jam)</span></div>
+                  <div class="text-[11px] font-semibold text-emerald-600">${state.ruangPass.active && state.ruangPass.remainingQuota > 0 ? '★ 1 Kuota Pass (Rp 0)' : 'Rp 3.000 <span class="text-[10px] text-slate-400 font-normal">(Flat 3 Jam)</span>'}</div>
                 </button>
               </div>
+              ${state.vehicleType === 'MOBIL' && state.ruangPass.active && state.ruangPass.remainingQuota > 0 && spot.availableBike > 0 ? `
+                <div onclick="state.vehicleType = 'MOTOR'; state.useRuangPassCheckout = true; render();" class="p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-300 flex items-center justify-between gap-2 cursor-pointer transition">
+                  <div>
+                    <div class="text-xs font-bold text-emerald-900">★ Anda punya RuangPass Aktif (${state.ruangPass.remainingQuota}/${state.ruangPass.totalQuota} Kuota Motor)</div>
+                    <div class="text-[10px] text-emerald-700 mt-0.5">RuangPass khusus Motor. Klik di sini untuk ganti ke Motor &amp; parkir Rp 0 (Bebas Fee)!</div>
+                  </div>
+                  <span class="px-2.5 py-1.5 bg-emerald-600 text-white text-[10px] font-bold rounded-lg shrink-0">Pakai Pass</span>
+                </div>
+              ` : ''}
               ${state.vehicleType === 'MOTOR' ? (canUseRuangPass ? `
                 <div onclick="state.useRuangPassCheckout = !state.useRuangPassCheckout; render();" class="p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${usingRuangPass ? 'bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500' : 'bg-slate-50 border-slate-200'}">
                   <div>
                     <div class="text-xs font-bold text-emerald-900">★ Gunakan Kuota RuangPass (Sisa ${state.ruangPass.remainingQuota}/${state.ruangPass.totalQuota})</div>
-                    <div class="text-[10px] text-emerald-700 mt-0.5">Potong 1 kuota motor • Rp 0 sekarang &amp; bebas biaya layanan</div>
+                    <div class="text-[10px] text-emerald-700 mt-0.5">Potong 1 kuota motor • Rp 0 sekarang &amp; bebas biaya layanan Rp 1.000</div>
                   </div>
                   <div class="w-5 h-5 rounded-md border flex items-center justify-center ${usingRuangPass ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white border-slate-300'}">${usingRuangPass ? Icons.check : ''}</div>
                 </div>
@@ -1678,26 +1692,39 @@ function renderCheckout() {
           <div class="${mob ? 'space-y-3.5' : 'lg:col-span-5 space-y-4'}">
             <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200/80 space-y-2">
               <label class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">4. Metode Pembayaran</label>
-              <div onclick="state.paymentMethod = 'SALDO'; render();" class="p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${state.paymentMethod === 'SALDO' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white'}">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">${Icons.wallet}</div>
-                  <div>
-                    <div class="font-bold text-xs text-slate-900">Saldo RuangPay</div>
-                    <div class="text-[11px] text-slate-500">Saldo aktif: <strong class="text-emerald-600">${formatIDR(state.walletBalance)}</strong></div>
+              ${usingRuangPass ? `
+                <div class="p-3.5 rounded-xl border border-emerald-500 bg-emerald-50 space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-xs text-emerald-950">★ Kuota Langganan RuangPass</span>
+                    <span class="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-lg">Rp 0 Sekarang</span>
                   </div>
+                  <p class="text-[11px] text-emerald-800 leading-relaxed">
+                    Memotong <strong>1 kuota motor</strong> (sisa setelah transaksi: <strong>${Math.max(0, state.ruangPass.remainingQuota - 1)}/${state.ruangPass.totalQuota}</strong>). Bebas biaya layanan Rp 1.000. Overstay &gt; 3 jam tetap +Rp 1.000/jam.
+                  </p>
+                  <button type="button" onclick="state.useRuangPassCheckout = false; render();" class="text-[10px] font-semibold text-emerald-700 underline cursor-pointer">Bayar reguler pakai Saldo / Midtrans saja</button>
                 </div>
-                <div class="w-4 h-4 rounded-full border flex items-center justify-center ${state.paymentMethod === 'SALDO' ? 'border-slate-900 bg-slate-900' : 'border-slate-300'}">${state.paymentMethod === 'SALDO' ? '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>' : ''}</div>
-              </div>
-              <div onclick="state.paymentMethod = 'QRIS'; render();" class="p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${state.paymentMethod === 'QRIS' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white'}">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-lg bg-sky-100 text-sky-800 flex items-center justify-center font-black text-[11px]">MT</div>
-                  <div>
-                    <div class="font-bold text-xs text-slate-900 flex items-center gap-1.5"><span>Midtrans Snap (QRIS / VA / E-Wallet)</span><span class="px-1.5 py-0.2 bg-sky-100 text-sky-800 text-[9px] font-bold rounded">Live API</span></div>
-                    <div class="text-[11px] text-slate-500">GoPay, QRIS, ShopeePay, BCA/BRI/Mandiri VA</div>
+              ` : `
+                <div onclick="state.paymentMethod = 'SALDO'; render();" class="p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${state.paymentMethod === 'SALDO' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white'}">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">${Icons.wallet}</div>
+                    <div>
+                      <div class="font-bold text-xs text-slate-900">Saldo RuangPay</div>
+                      <div class="text-[11px] text-slate-500">Saldo aktif: <strong class="text-emerald-600">${formatIDR(state.walletBalance)}</strong></div>
+                    </div>
                   </div>
+                  <div class="w-4 h-4 rounded-full border flex items-center justify-center ${state.paymentMethod === 'SALDO' ? 'border-slate-900 bg-slate-900' : 'border-slate-300'}">${state.paymentMethod === 'SALDO' ? '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>' : ''}</div>
                 </div>
-                <div class="w-4 h-4 rounded-full border flex items-center justify-center ${state.paymentMethod === 'QRIS' ? 'border-slate-900 bg-slate-900' : 'border-slate-300'}">${state.paymentMethod === 'QRIS' ? '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>' : ''}</div>
-              </div>
+                <div onclick="state.paymentMethod = 'QRIS'; render();" class="p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${state.paymentMethod === 'QRIS' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white'}">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-100 text-sky-800 flex items-center justify-center font-black text-[11px]">MT</div>
+                    <div>
+                      <div class="font-bold text-xs text-slate-900 flex items-center gap-1.5"><span>Midtrans Snap (QRIS / VA / E-Wallet)</span><span class="px-1.5 py-0.2 bg-sky-100 text-sky-800 text-[9px] font-bold rounded">Live API</span></div>
+                      <div class="text-[11px] text-slate-500">GoPay, QRIS, ShopeePay, BCA/BRI/Mandiri VA</div>
+                    </div>
+                  </div>
+                  <div class="w-4 h-4 rounded-full border flex items-center justify-center ${state.paymentMethod === 'QRIS' ? 'border-slate-900 bg-slate-900' : 'border-slate-300'}">${state.paymentMethod === 'QRIS' ? '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>' : ''}</div>
+                </div>
+              `}
             </div>
 
             ${!usingRuangPass ? `
@@ -1823,6 +1850,7 @@ function renderTicket() {
 
             <div class="text-lg font-black text-slate-900 mt-4 tracking-tight">[${ticket.vehicle}] ${ticket.plate}</div>
             <div class="text-xs text-slate-500 font-medium mt-0.5">${ticket.spotName} • ${ticket.slot}</div>
+            ${ticket.usedRuangPass ? `<div class="inline-flex items-center gap-1 mt-2 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-bold text-emerald-800"><span>★ Tiket RuangPass (1 Kuota Motor • Bebas Fee Rp 1.000)</span></div>` : ''}
 
             <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 mt-4">
               <div class="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wide">
@@ -2767,10 +2795,12 @@ function renderOverstayModal() {
         </div>
 
         <div class="my-2.5 p-3 bg-emerald-50/70 rounded-2xl border border-emerald-200 text-left text-[11px] space-y-1">
-          <div class="font-bold text-emerald-950 text-[10px] uppercase">Alokasi Bagi Hasil 40:40:20 + Fee:</div>
-          <div class="flex justify-between text-slate-700"><span>• Pemilik Lahan (40%):</span><span class="font-bold text-slate-900">${formatIDR(split.shareLandowner)}</span></div>
-          <div class="flex justify-between text-slate-700"><span>• Mitra Jukir (40%):</span><span class="font-bold text-slate-900">${formatIDR(split.shareJukir)}</span></div>
-          <div class="flex justify-between text-emerald-900"><span>• Platform (20% + Fee):</span><span class="font-black text-emerald-800">${formatIDR(split.sharePlatformTotal)}</span></div>
+          <div class="font-bold text-emerald-950 text-[10px] uppercase">
+            ${split.usedRuangPass ? 'Alokasi Pool RuangPass (Rp 1.000/pihak + Overstay 40:40:20):' : 'Alokasi Bagi Hasil 40:40:20 + Fee:'}
+          </div>
+          <div class="flex justify-between text-slate-700"><span>• ${split.usedRuangPass ? 'Pemilik Lahan (Pool Rp 1k + 40% ov)' : 'Pemilik Lahan (40%)'}:</span><span class="font-bold text-slate-900">${formatIDR(split.shareLandowner)}</span></div>
+          <div class="flex justify-between text-slate-700"><span>• ${split.usedRuangPass ? 'Mitra Jukir (Pool Rp 1k + 40% ov)' : 'Mitra Jukir (40%)'}:</span><span class="font-bold text-slate-900">${formatIDR(split.shareJukir)}</span></div>
+          <div class="flex justify-between text-emerald-900"><span>• ${split.usedRuangPass ? 'Platform (Margin Paket + 20% ov)' : 'Platform (20% + Fee)'}:</span><span class="font-black text-emerald-800">${formatIDR(split.sharePlatformTotal)}</span></div>
         </div>
 
         <!-- Penyesuaian Manual / Uji Overstay (Collapsible agar tidak mengganggu alur utama) -->
@@ -2879,6 +2909,19 @@ async function purchaseRuangPass(method) {
   }
 }
 
+function useRuangPassNow() {
+  state.ruangPassModal = false;
+  state.activeFilter = 'Motor';
+  state.vehicleType = 'MOTOR';
+  state.useRuangPassCheckout = true;
+  if (state.currentScreen === 'CHECKOUT') {
+    render();
+  } else {
+    setScreen('HOME');
+  }
+  showToast('Filter Motor & Kuota RuangPass diaktifkan! Pilih garasi lalu lanjut Reservasi.');
+}
+
 function renderRuangPassModal() {
   if (!state.ruangPassModal) return '';
   const active = state.ruangPass.active;
@@ -2892,16 +2935,32 @@ function renderRuangPassModal() {
           <div>
             <div class="text-[10px] text-emerald-400 font-semibold uppercase">Harga Paket / 30 Hari</div>
             <div class="text-2xl font-black mt-0.5">Rp 55.000</div>
-            <div class="text-[11px] text-slate-300 mt-0.5">Setara <strong>Rp 2.750 / parkir</strong> (bebas fee)</div>
+            <div class="text-[11px] text-slate-300 mt-0.5">Setara <strong>Rp 2.750 / parkir</strong> (hemat Rp 1.250/x)</div>
           </div>
-          <div class="text-right"><div class="text-xl font-black text-emerald-400">20x</div><div class="text-[9px] text-slate-400">Kuota</div></div>
+          <div class="text-right"><div class="text-xl font-black text-emerald-400">20x</div><div class="text-[9px] text-slate-400">Kuota Motor</div></div>
         </div>
-        ${active ? `<div class="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs"><span class="font-bold text-emerald-900">Aktif s/d ${state.ruangPass.validUntil}</span><span class="font-black text-emerald-700">${state.ruangPass.remainingQuota}/${state.ruangPass.totalQuota}</span></div>` : ''}
-        <div class="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] space-y-1">
-          <div class="font-bold text-slate-700 text-[10px] uppercase">Alokasi Paket RuangPass:</div>
-          <div class="flex justify-between text-slate-600"><span>• Pool Pemilik Lahan:</span><strong>Rp 20.000</strong></div>
-          <div class="flex justify-between text-slate-600"><span>• Pool Juru Parkir:</span><strong>Rp 20.000</strong></div>
-          <div class="flex justify-between text-emerald-800"><span>• Margin Platform:</span><strong>Rp 15.000</strong></div>
+        ${active ? `
+          <div class="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-emerald-900">Aktif s/d ${state.ruangPass.validUntil}</span>
+              <span class="font-black text-emerald-700">${state.ruangPass.remainingQuota}/${state.ruangPass.totalQuota} Kuota</span>
+            </div>
+            <button onclick="useRuangPassNow()" class="h-10 w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs cursor-pointer shadow-xs">
+              ★ Gunakan RuangPass Sekarang → Cari Parkir Motor
+            </button>
+          </div>
+        ` : ''}
+        <div class="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] space-y-1.5 text-slate-600">
+          <div class="font-bold text-slate-800 text-[10px] uppercase">Cara Kerja &amp; Keterkaitan RuangPass:</div>
+          <div>• <strong>Saat Checkout Motor:</strong> Rp 0 di kasir (potong 1 kuota, bebas Fee Rp 1.000) untuk flat 1–3 jam.</div>
+          <div>• <strong>Overstay &gt; 3 Jam:</strong> Tetap dikenakan +Rp 1.000/jam saat Check-Out Jukir.</div>
+          <div>• <strong>Batal sebelum Check-In:</strong> Kuota otomatis kembali (+1).</div>
+          <div class="pt-1.5 border-t border-slate-200 space-y-0.5">
+            <div class="font-bold text-slate-700 text-[10px] uppercase">Alokasi Dana Paket (Rp 55.000):</div>
+            <div class="flex justify-between"><span>• Pool Pemilik Lahan (Rp 1.000/parkir):</span><strong>Rp 20.000</strong></div>
+            <div class="flex justify-between"><span>• Pool Juru Parkir (Rp 1.000/parkir):</span><strong>Rp 20.000</strong></div>
+            <div class="flex justify-between text-emerald-800"><span>• Margin Platform RuangParkir:</span><strong>Rp 15.000</strong></div>
+          </div>
         </div>
         <div class="mt-4 space-y-2">
           <button onclick="purchaseRuangPass('SALDO')" class="h-11 w-full bg-slate-900 hover:bg-black text-white rounded-xl font-bold text-xs cursor-pointer">${active ? 'Perpanjang +20 Kuota (Saldo RuangPay)' : 'Aktifkan — Saldo RuangPay (Rp 55.000)'}</button>

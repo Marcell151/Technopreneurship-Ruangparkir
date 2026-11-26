@@ -287,7 +287,10 @@ try {
         $pdo->prepare("UPDATE bookings SET status = 'CANCELLED', actual_duration_label = 'Dibatalkan' WHERE id = ?")->execute([(int)$bk['id']]);
         $pdo->commit();
 
-        jsonResponse(['ok' => true, 'wallet_balance' => $newBal, 'message' => 'Pesanan #' . $bk['booking_code'] . ' dibatalkan. Slot dilepas & deposit dikembalikan.']);
+        $cancelMsg = !empty($bk['used_ruangpass'])
+            ? 'Pesanan RuangPass #' . $bk['booking_code'] . ' dibatalkan. Slot dilepas & 1 Kuota RuangPass dikembalikan.'
+            : 'Pesanan #' . $bk['booking_code'] . ' dibatalkan. Slot dilepas & deposit dikembalikan.';
+        jsonResponse(['ok' => true, 'wallet_balance' => $newBal, 'message' => $cancelMsg]);
     }
 
     jsonResponse(['ok' => false, 'message' => 'Aksi bookings tidak dikenal.'], 400);
