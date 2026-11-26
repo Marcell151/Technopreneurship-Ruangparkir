@@ -430,7 +430,8 @@ const Icons = {
   eyeOff: '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
   phone: '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>',
   logOut: '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>',
-  edit: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path stroke-linecap="round" stroke-linejoin="round" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>'
+  edit: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path stroke-linecap="round" stroke-linejoin="round" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+  refresh: '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>'
 };
 
 // ==========================================
@@ -503,6 +504,9 @@ function renderDesktopNavbar(activeTab) {
               <span>Keluar</span>
             </button>
           ` : `
+            <button onclick="handleResetDatabase()" title="Reset seluruh data db_parkir ke kondisi awal" class="h-9 px-3 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition">
+              ${Icons.refresh}<span>Reset DB</span>
+            </button>
             <button onclick="state.faqModal = true; render();" class="h-9 px-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
               ${Icons.helpCircle}<span>Panduan</span>
             </button>
@@ -640,8 +644,37 @@ async function handleLogout() {
     state.waitingQueue = [];
     state.parkedVehicles = [];
     state.myGarages = [];
+    state.pendingMidtransOrder = null;
     setScreen('LOGIN');
     showToast('Anda telah keluar dari sistem.');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function handleResetDatabase() {
+  if (!confirm('Reset seluruh database db_parkir ke kondisi awal? Semua data uji coba (booking, saldo, akun baru, garasi tambahan) akan dikembalikan ke data awal.')) {
+    return;
+  }
+  try {
+    const res = await apiRequest('./api/reset_db.php', { method: 'POST' });
+    state.authenticated = false;
+    state.userRole = null;
+    state.currentUser = null;
+    state.activeBooking = null;
+    state.historyList = [];
+    state.waitingQueue = [];
+    state.parkedVehicles = [];
+    state.myGarages = [];
+    state.walletLogs = [];
+    state.ruangPass = { active: false, remainingQuota: 0, totalQuota: 20, validUntil: '30 Hari' };
+    state.useRuangPassCheckout = false;
+    state.promoCode = '';
+    state.discountAmount = 0;
+    state.pendingMidtransOrder = null;
+    await loadSpots();
+    setScreen('LOGIN');
+    showToast(res.message);
   } catch (err) {
     showToast(err.message, 'error');
   }
@@ -742,7 +775,12 @@ function renderLogin() {
                   <div class="text-[10px] text-slate-500 group-hover:text-slate-300 mt-0.5 truncate">Pak Slamet</div>
                 </button>
               </div>
-              <p class="text-[10px] text-slate-400">PIN default semua akun terdaftar: <code class="font-mono text-slate-600 font-bold">123456</code></p>
+              <div class="flex items-center justify-between gap-2 pt-0.5">
+                <p class="text-[10px] text-slate-400">PIN default: <code class="font-mono text-slate-600 font-bold">123456</code></p>
+                <button type="button" onclick="handleResetDatabase()" class="text-[10px] font-bold text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 cursor-pointer">
+                  <span>↻</span><span>Reset Database</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2648,6 +2686,10 @@ function renderProfile() {
             <button onclick="state.faqModal = true; render();" class="w-full h-12 bg-white hover:bg-slate-50 rounded-2xl px-4 shadow-xs border border-slate-200/80 flex items-center justify-between text-left cursor-pointer">
               <div class="flex items-center gap-2.5"><span class="text-slate-600">${Icons.helpCircle}</span><span class="text-xs font-bold text-slate-900">Pusat Bantuan &amp; Ketentuan Tarif</span></div>
               <span>${Icons.chevronRight}</span>
+            </button>
+
+            <button onclick="handleResetDatabase()" class="w-full h-11 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition">
+              <span>${Icons.refresh}</span><span>Reset Database (db_parkir) ke Data Awal</span>
             </button>
 
             <button onclick="handleLogout()" class="w-full h-12 bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer">
