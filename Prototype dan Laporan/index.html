@@ -53,9 +53,11 @@
         transform: translate3d(0, 0, 0);
         -webkit-transform: translate3d(0, 0, 0);
       }
+
       .phone-screen .min-h-screen {
         min-height: 100%;
       }
+
       .phone-screen .h-screen {
         height: 100%;
       }
@@ -63,11 +65,18 @@
 
     /* Fullscreen Responsive Mobile View (SMARTPHONE / HP) */
     @media (max-width: 639px) {
-      html, body {
+
+      html,
+      body {
         height: 100%;
         background-color: #ffffff !important;
       }
-      #device-container, #device-wrapper, #phone-frame, .phone-screen, #app {
+
+      #device-container,
+      #device-wrapper,
+      #phone-frame,
+      .phone-screen,
+      #app {
         width: 100% !important;
         height: 100% !important;
         min-height: 100dvh !important;
@@ -77,6 +86,7 @@
         padding: 0 !important;
         box-shadow: none !important;
       }
+
       #screen-home {
         height: 100dvh !important;
         min-height: 100dvh !important;
@@ -178,6 +188,56 @@
     // Asset Logo
     const LOGO_SRC = "https://lh3.googleusercontent.com/aida-public/AB6AXuDtj-AwGodH_7Q1iql6_v977VgL8mlHR6-rDJaTDTD-GtkPcAYjlICMUxL2AqCc2ts_bHxXdfChm2yWFlp6rrbiJ256jQsle-kLm6s1zdj0-jtcvwQDzZHJArHlXt_QKCaUg9QNXCJLDWJtXMy_epJk2elV5bQiW24OJ8VhsBo-zZZzlW0dcd185bEgTY-sOTx24ZOxonQipsh44upbdMKbBTY7OjNSSWKRbiUZTMPqPwci5AUoF39YnrEl8GFpwhb3SQ";
 
+    // KONSTANTA MONETISASI FINAL UAS (TABEL 10.1 & BAB X)
+    const PLATFORM_FEE = 1000;
+    const RUANGPASS_CONFIG = {
+      price: 55000,
+      totalQuota: 20,
+      perParkCost: 2750,
+      landownerPool: 20000,
+      jukirPool: 20000,
+      platformMargin: 15000,
+      landownerPerUse: 1000,
+      jukirPerUse: 1000
+    };
+
+    // MASTER DATA PROMOSI UMKM SEKITAR (FEATURED MERCHANT - Rp100.000/BLN)
+    const NEARBY_UMKM = [
+      {
+        id: 'umkm-1',
+        spotId: '1',
+        name: 'Kedai Kopi Suhat 45',
+        category: 'Kopi & Camilan',
+        distance: '50m dari Garasi Pak Budi',
+        promoTitle: 'Diskon 15% Semua Kopi Susu',
+        promoDesc: 'Tunjukkan E-Tiket aktif RuangParkir di kasir untuk menikmati potongan 15% seluruh menu kopi & snack.',
+        promoCode: 'RP-KOPI15',
+        hours: '08.00 – 23.00 WIB'
+      },
+      {
+        id: 'umkm-2',
+        spotId: '2',
+        name: 'Warung Lalapan & Bakso Cak Mat',
+        category: 'Kuliner Malang',
+        distance: '80m dari Garasi Bu Rina',
+        promoTitle: 'Gratis Es Teh Manis',
+        promoDesc: 'Gratis 1 Es Teh Manis untuk setiap pembelian paket lalapan atau bakso dengan menunjukkan E-Tiket RuangParkir.',
+        promoCode: 'RP-CAKMAT',
+        hours: '10.00 – 22.00 WIB'
+      },
+      {
+        id: 'umkm-3',
+        spotId: '3',
+        name: 'Roti Bakar Senja Klojen',
+        category: 'Kafe & Hangout',
+        distance: '60m dari Lahan Merbabu',
+        promoTitle: 'Potongan Rp5.000 (Min. Rp30rb)',
+        promoDesc: 'Berlaku khusus pengunjung parkir motor RuangParkir di Lahan Merbabu No. 8.',
+        promoCode: 'RP-SENJA5K',
+        hours: '15.00 – 23.00 WIB'
+      }
+    ];
+
     // Master Data Titik Garasi Warga
     let myGarages = [
       {
@@ -210,7 +270,10 @@
         priceMotor: 3000,
         priceMobil: 8000,
         isFull: false,
+        isOpen: true,
         jukirName: 'Slamet Riyadi (ID: JK-04)',
+        jukirPhone: '0878-9988-7766',
+        accessNote: 'Masuk 30m dari Jl. Soekarno Hatta sebelah minimarket, pagar hijau berplang resmi RuangParkir.',
         facilities: ['CCTV 24 Jam', 'Kanopi Beratap', 'Akses Jalan Lebar', 'Dijaga Jukir'],
         photo: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=600&auto=format&fit=crop&q=80',
         top: '35%',
@@ -231,10 +294,13 @@
         priceMotor: 3000,
         priceMobil: 8000,
         isFull: false,
+        isOpen: true,
         jukirName: 'Agus Santoso (ID: JK-09)',
+        jukirPhone: '0813-4455-6677',
+        accessNote: 'Masuk Jl. Candi Borobudur Barat, rumah kanopi abu-abu 40m dari jalan utama.',
         facilities: ['Dijaga Jukir', 'Akses 24 Jam', 'Lantai Paving'],
         photo: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600&auto=format&fit=crop&q=80',
-        top: '60%',
+        top: '56%',
         left: '52%'
       },
       {
@@ -252,7 +318,10 @@
         priceMotor: 3000,
         priceMobil: 8000,
         isFull: false,
+        isOpen: true,
         jukirName: 'Bambang Irawan (ID: JK-12)',
+        jukirPhone: '0856-7788-9900',
+        accessNote: 'Halaman samping Jl. Merbabu No. 8 dekat pusat kuliner, khusus kendaraan roda dua.',
         facilities: ['Khusus Roda Dua', 'Penerangan Terang', 'Dekat Pusat Kuliner'],
         photo: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=600&auto=format&fit=crop&q=80',
         top: '28%',
@@ -306,45 +375,66 @@
       rememberMe: true,
       registerModal: false,
       ratingModal: false,
-      ratingScore: 5, // DRIVER | LANDOWNER | ATTENDANT
+      ratingScore: 5,
+      ratingTargetCode: null,
+      selectedFeedbackTags: ['Jukir Ramah', 'Aman & Terjaga'],
 
       // Filter & Search Peta
       searchQuery: '',
       activeFilter: 'Semua', // 'Semua', 'Mobil', 'Motor', 'Tersedia'
       bookmarkedSpots: ['1'],
 
-      // Driver State
-      walletBalance: 50000,
+      // Driver State & RuangPass Subscription
+      walletBalance: 75000,
       selectedSpot: SPOTS[0],
       vehicleType: 'MOBIL', // MOBIL | MOTOR
       plateNumber: 'N 1234 ABC',
       plannedDuration: 5, // Estimasi rencana parkir pengguna
-      paymentMethod: 'SALDO', // SALDO | QRIS | VA
+      paymentMethod: 'SALDO', // SALDO | QRIS
       promoCode: '',
-      discountAmount: 0,
+      discountAmount: 0, // Bebas Biaya Layanan Rp1.000 (HEMAT1K)
       toastMsg: null,
+      ruangPass: {
+        active: false,
+        remainingQuota: 0,
+        totalQuota: 20,
+        validUntil: '30 Hari'
+      },
+      useRuangPassCheckout: false,
 
       // Modals
       topUpModal: false,
       withdrawModal: false,
+      withdrawAmount: 100000,
       overstayModal: false,
       addGarageModal: false,
       scannerModal: false,
       scannerMode: 'IN', // 'IN' (Check-in Masuk) | 'OUT' (Check-out Keluar)
+      manualCodeInput: '',
       faqModal: false,
+      ruangPassModal: false,
+      umkmModal: null,
+      contactJukirModal: false,
 
       // Tiket & Argometer Real-time
       ticketStatus: 'WAITING_CHECKIN', // WAITING_CHECKIN | ACTIVE | FINISHED
       parkingSecondsElapsed: 6300, // 1 Jam 45 Menit (simulasi demo argometer)
       activeBooking: {
         code: 'RP-88291',
+        spotId: '1',
         spotName: 'Garasi Pak Budi - Soekarno Hatta No. 45',
+        jukirName: 'Slamet Riyadi (ID: JK-04)',
+        jukirPhone: '0878-9988-7766',
+        accessNote: 'Masuk 30m dari Jl. Soekarno Hatta sebelah minimarket, pagar hijau berplang resmi RuangParkir.',
         plate: 'N 1234 ABC',
         slot: 'Slot A-02',
         vehicle: 'MOBIL',
         plannedDuration: 5,
-        depositPaid: 8000,
+        baseParkingTariff: 8000,
+        platformFee: 1000,
+        depositPaid: 9000,
         overstayPaid: 0,
+        usedRuangPass: false,
         checkInTime: null,
         paymentMethod: 'SALDO'
       },
@@ -357,18 +447,19 @@
       landownerBalance: 340000,
       todayRevenue: 72000,
       parkedVehicles: [
-        { plate: 'B 4410 KLA', type: 'Honda HR-V Putih', slot: 'Slot A-01', durationNow: '01:45:00', durationSec: 6300, note: 'Paket Flat 3 Jam', status: 'ACTIVE' },
-        { plate: 'N 8892 XY', type: 'Vario 160 Merah', slot: 'Slot M-01', durationNow: '00:30:10', durationSec: 1810, note: 'Paket Flat 3 Jam', status: 'ACTIVE' }
+        { plate: 'B 4410 KLA', type: 'Honda HR-V Putih', vehicleKind: 'MOBIL', slot: 'Slot A-01', durationNow: '01:45:00', durationSec: 6300, note: 'Paket Flat 3 Jam', status: 'ACTIVE' },
+        { plate: 'N 8892 XY', type: 'Vario 160 Merah', vehicleKind: 'MOTOR', slot: 'Slot M-01', durationNow: '00:30:10', durationSec: 1810, note: 'Paket Flat 3 Jam', status: 'ACTIVE' }
       ],
 
-      // Juru Parkir State
+      // Juru Parkir & Platform State
       attendantEarningsToday: 48000,
       totalVehiclesManagedToday: 14,
+      platformRevenueToday: 36000,
 
-      // Riwayat Driver
+      // Riwayat Driver (Selaras Tabel 10.1: Tarif + Biaya Layanan Rp1.000)
       historyList: [
-        { code: 'RP-77102', spot: 'Garasi Bu Rina', vehicle: 'MOBIL', plate: 'N 1234 ABC', date: 'Kemarin, 14:00', duration: '2 Jam (Flat)', deposit: 8000, overstay: 0, cost: 8000, status: 'Selesai' },
-        { code: 'RP-65901', spot: 'Garasi Pak Budi', vehicle: 'MOTOR', plate: 'N 8892 XY', date: '12 Okt 2024', duration: '4 Jam (+1 Jam)', deposit: 3000, overstay: 1000, cost: 4000, status: 'Selesai' }
+        { code: 'RP-77102', spot: 'Garasi Bu Rina', vehicle: 'MOBIL', plate: 'N 1234 ABC', date: 'Kemarin, 14:00', duration: '2 Jam (Flat)', deposit: 8000, platformFee: 1000, overstay: 0, cost: 9000, status: 'Selesai', isRated: false, rating: null },
+        { code: 'RP-65901', spot: 'Garasi Pak Budi', vehicle: 'MOTOR', plate: 'N 8892 XY', date: '12 Okt 2024', duration: '5 Jam (+2 Jam)', deposit: 3000, platformFee: 1000, overstay: 2000, cost: 6000, status: 'Selesai', isRated: false, rating: null }
       ]
     };
 
@@ -397,6 +488,49 @@
       return vehicleType === 'MOTOR' ? 3000 : 8000;
     }
 
+    // SINGLE SOURCE OF TRUTH: PERHITUNGAN BAGI HASIL 40:40:20 + FEE Rp1.000 (TABEL 10.1) & RUANGPASS
+    function calculateTransactionBreakdown(baseParkingTariff, overstayFee, platformFeeApplied, usedRuangPass) {
+      if (usedRuangPass) {
+        const overstayLandowner = Math.round(overstayFee * 0.4);
+        const overstayJukir = Math.round(overstayFee * 0.4);
+        const overstayPlatform = Math.round(overstayFee * 0.2);
+        return {
+          baseParkingTariff: 0,
+          overstayFee,
+          totalParkingTariff: overstayFee,
+          platformFee: 0,
+          totalUserPaid: overstayFee,
+          shareLandowner: RUANGPASS_CONFIG.landownerPerUse + overstayLandowner,
+          shareJukir: RUANGPASS_CONFIG.jukirPerUse + overstayJukir,
+          platformCommission: overstayPlatform,
+          sharePlatformTotal: overstayPlatform,
+          usedRuangPass: true
+        };
+      }
+      const totalParkingTariff = baseParkingTariff + overstayFee;
+      const shareLandowner = Math.round(totalParkingTariff * 0.4);
+      const shareJukir = Math.round(totalParkingTariff * 0.4);
+      const platformCommission = Math.round(totalParkingTariff * 0.2);
+      const sharePlatformTotal = platformCommission + platformFeeApplied;
+      const totalUserPaid = totalParkingTariff + platformFeeApplied;
+      return {
+        baseParkingTariff,
+        overstayFee,
+        totalParkingTariff,
+        platformFee: platformFeeApplied,
+        totalUserPaid,
+        shareLandowner,
+        shareJukir,
+        platformCommission,
+        sharePlatformTotal,
+        usedRuangPass: false
+      };
+    }
+
+    function getNearbyUmkmForSpot(spotId) {
+      return NEARBY_UMKM.find(u => u.spotId === spotId) || NEARBY_UMKM[0];
+    }
+
     function showToast(msg) {
       state.toastMsg = msg;
       render();
@@ -418,6 +552,9 @@
 
     function setUserRole(role) {
       state.userRole = role;
+      if (DEMO_ACCOUNTS[role]) {
+        state.currentUser = { ...DEMO_ACCOUNTS[role] };
+      }
       if (role === 'DRIVER') {
         state.currentScreen = 'HOME';
         showToast('Beralih ke mode Pengemudi');
@@ -433,7 +570,7 @@
 
     // MINIMALIST SVG ICON LIBRARY (LUCIDE STYLE, MONOCHROME & CLEAN)
     const Icons = {
-    camera: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>',
+      camera: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>',
       arrowLeft: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>`,
       arrowRight: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`,
       chevronRight: `<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`,
@@ -589,7 +726,7 @@
         <div class="flex flex-col justify-between min-h-screen bg-white p-7" id="screen-splash">
           <div class="w-full flex justify-between items-center pt-2">
             <span class="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">Community Parking Platform</span>
-            <span class="text-[11px] font-mono font-medium text-slate-400">v3.0 Production</span>
+            <span class="text-[11px] font-mono font-medium text-emerald-600">v4.0 Final UAS</span>
           </div>
 
           <div class="flex flex-col items-center text-center my-auto py-8">
@@ -601,9 +738,10 @@
               <span class="text-emerald-600">${Icons.mapPin}</span>
               <h1 class="text-3xl font-black text-slate-900 tracking-tight">RuangParkir</h1>
             </div>
+            <p class="text-[11px] font-semibold text-emerald-600 italic mt-1">"Berbagi Ruang, Parkir Lebih Tenang."</p>
 
-            <p class="text-slate-500 text-sm font-normal max-w-[280px] leading-relaxed mt-2.5">
-              Aplikasi marketplace lahan parkir warga dengan sistem reservasi deposit dan juru parkir terpadu.
+            <p class="text-slate-500 text-xs font-normal max-w-[280px] leading-relaxed mt-2">
+              Marketplace lahan parkir komunitas warga dengan tarif transparan flat 3 jam, juru parkir terpadu, dan paket hemat RuangPass.
             </p>
 
             <div class="mt-8 grid grid-cols-3 gap-2 w-full max-w-xs text-left">
@@ -969,6 +1107,9 @@
 
       const spot = (filteredSpots.find(s => s.id === (state.selectedSpot && state.selectedSpot.id))) || filteredSpots[0] || SPOTS[0];
       const isBookmarked = state.bookmarkedSpots.includes(spot.id);
+      const isMotorSpot = spot.category === 'Motor';
+      const displayBasePrice = isMotorSpot ? spot.priceMotor : spot.priceMobil;
+      const nearbyUmkm = getNearbyUmkmForSpot(spot.id);
 
       return `
         <div class="relative w-full h-full min-h-screen sm:min-h-0 sm:h-full overflow-hidden flex flex-col bg-slate-200" id="screen-home">
@@ -1016,7 +1157,7 @@
                 ` : ''}
               </div>
 
-              <!-- Interactive Filter Chips -->
+              <!-- Interactive Filter Chips + RuangPass Quick Pill -->
               <div class="flex gap-1.5 overflow-x-auto hide-scrollbar pt-0.5">
                 ${['Semua', 'Mobil', 'Motor', 'Tersedia'].map(f => `
                   <button 
@@ -1026,6 +1167,13 @@
                     ${f}
                   </button>
                 `).join('')}
+                <button
+                  onclick="state.ruangPassModal = true; render();"
+                  class="px-3 py-1 rounded-full text-[11px] font-bold transition cursor-pointer shrink-0 border flex items-center gap-1 ${state.ruangPass.active ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}"
+                >
+                  <span>★</span>
+                  <span>${state.ruangPass.active ? `RuangPass (${state.ruangPass.remainingQuota}/20)` : 'RuangPass 55k'}</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1038,15 +1186,15 @@
                 <path d="M-20,100 C150,180 200,80 450,220" stroke="#94a3b8" stroke-width="14" fill="none" opacity="0.6"/>
               </svg>
               <div class="absolute top-36 left-6 w-32 h-24 bg-slate-300/50 border border-slate-400/40 rounded-3xl flex items-center justify-center text-[10px] font-semibold text-slate-600/70">Area Suhat</div>
-              <div class="absolute bottom-48 right-4 w-36 h-28 bg-slate-300/40 border border-slate-400/30 rounded-2xl flex items-center justify-center text-[10px] font-semibold text-slate-600/70">Kampus UB / Polinema</div>
-              <div class="absolute top-1/2 -translate-y-12 left-0 right-0 h-16 bg-white border-y-2 border-slate-300 shadow-sm flex items-center justify-center">
+              <div class="absolute bottom-56 right-4 w-36 h-24 bg-slate-300/40 border border-slate-400/30 rounded-2xl flex items-center justify-center text-[10px] font-semibold text-slate-600/70">Kampus UB / Polinema</div>
+              <div class="absolute top-[46%] -translate-y-10 left-0 right-0 h-14 bg-white border-y-2 border-slate-300 shadow-sm flex items-center justify-center">
                 <div class="w-full border-t border-dashed border-slate-400"></div>
                 <span class="absolute right-8 text-[10px] font-semibold tracking-widest text-slate-400 uppercase">Jl. Soekarno Hatta</span>
               </div>
             </div>
 
             <!-- GPS User Location -->
-            <div class="absolute top-[48%] left-[34%] z-20 pointer-events-none -translate-x-1/2 -translate-y-1/2">
+            <div class="absolute top-[44%] left-[34%] z-20 pointer-events-none -translate-x-1/2 -translate-y-1/2">
               <div class="w-10 h-10 rounded-full bg-emerald-500/20 animate-ping absolute"></div>
               <div class="w-4 h-4 rounded-full bg-emerald-600 border-2 border-white shadow-md flex items-center justify-center"></div>
             </div>
@@ -1054,54 +1202,72 @@
             <!-- Dynamic Map Pins (Alur 7.2 A.1 LBS) -->
               ${filteredSpots.map(s => {
         const isSelected = spot && spot.id === s.id;
+        const isSpotOpen = s.isOpen !== false;
         const priceBadge = s.category === 'Motor' ? `Rp ${s.priceMotor / 1000}k` : `Rp ${s.priceMobil / 1000}k`;
         return `
                   <div onclick="selectMapSpot('${s.id}')" style="top: ${s.top}; left: ${s.left};" class="absolute z-20 cursor-pointer active:scale-95 transition-all">
-                    <div class="px-2.5 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1 shadow-md transition-all ${isSelected ? 'bg-slate-900 text-white ring-2 ring-emerald-500 scale-105' : 'bg-white text-slate-800 border border-slate-200 hover:bg-slate-50'}">
-                      <span class="w-2 h-2 rounded-full ${s.availableSlots > 0 ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
-                      <span>${s.shortName} • ${priceBadge}</span>
+                    <div class="px-2.5 py-1 rounded-xl text-[11px] font-semibold flex items-center gap-1 shadow-md transition-all ${!isSpotOpen ? 'bg-slate-200 text-slate-500 border border-slate-300' : (isSelected ? 'bg-slate-900 text-white ring-2 ring-emerald-500 scale-105' : 'bg-white text-slate-800 border border-slate-200 hover:bg-slate-50')}">
+                      <span class="w-2 h-2 rounded-full ${!isSpotOpen ? 'bg-slate-400' : (s.availableSlots > 0 ? 'bg-emerald-500' : 'bg-rose-500')}"></span>
+                      <span>${s.shortName} • ${isSpotOpen ? priceBadge : 'Tutup'}</span>
                     </div>
-                    <div class="w-2 h-2 ${isSelected ? 'bg-slate-900' : 'bg-white border-r border-b border-slate-200'} rotate-45 mx-auto -mt-1"></div>
+                    <div class="w-2 h-2 ${!isSpotOpen ? 'bg-slate-200' : (isSelected ? 'bg-slate-900' : 'bg-white border-r border-b border-slate-200')} rotate-45 mx-auto -mt-1"></div>
                   </div>
                 `;
       }).join('')}
           </div>
 
-          <!-- Bottom Card Preview Garasi Terpilih -->
-          <div class="absolute bottom-16 left-3 right-3 z-30 bg-white rounded-2xl p-4 shadow-xl border border-slate-200/90 flex flex-col gap-3">
-            <div class="flex items-start gap-3 cursor-pointer" onclick="setScreen('DETAIL')">
-              <img src="${spot.photo}" alt="${spot.name}" class="w-20 h-20 rounded-xl object-cover shrink-0 border border-slate-100">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between gap-1 mb-1">
-                  <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-slate-100 text-slate-700">
-                    ${spot.availableSlots} Slot Kosong
-                  </span>
-                  <span class="text-[11px] font-medium text-slate-400">${spot.distance}</span>
-                </div>
-                <h3 class="font-bold text-slate-900 text-xs truncate leading-snug">${spot.name}</h3>
-                <p class="text-[11px] text-slate-500 truncate mt-0.5">${spot.address}</p>
-                <div class="flex items-center justify-between mt-1.5">
-                  <div class="flex items-center gap-1 text-[11px] text-slate-700 font-medium">
-                    ${Icons.star}
-                    <span>${spot.rating}</span>
-                    <span class="text-slate-400">(${spot.reviews})</span>
-                  </div>
-                  <span class="text-xs font-bold text-emerald-600">Rp ${spot.priceMobil.toLocaleString('id-ID')} / 3 Jam</span>
+          <!-- Bottom Card Preview Garasi Terpilih + Slot Promosi UMKM Sekitar -->
+          <div class="absolute bottom-16 left-3 right-3 z-30 flex flex-col gap-2">
+            <!-- Strip Promosi UMKM Sekitar (Featured Merchant - Bab 10.1) -->
+            <div onclick="openUmkmModal('${nearbyUmkm.id}')" class="bg-amber-50/95 backdrop-blur-md border border-amber-200/90 rounded-xl px-3 py-2 shadow-sm flex items-center justify-between gap-2 cursor-pointer active:scale-[0.99] transition">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="px-1.5 py-0.5 bg-amber-500 text-white text-[9px] font-extrabold rounded uppercase shrink-0">UMKM</span>
+                <div class="min-w-0">
+                  <div class="text-[11px] font-bold text-slate-900 truncate">${nearbyUmkm.name} • <span class="text-amber-800">${nearbyUmkm.promoTitle}</span></div>
+                  <div class="text-[9px] text-slate-500 truncate">${nearbyUmkm.distance} • Tunjukkan E-Tiket</div>
                 </div>
               </div>
+              <span class="text-amber-700 shrink-0">${Icons.chevronRight}</span>
             </div>
 
-            <div class="flex gap-2 pt-1 border-t border-slate-100">
-              <button onclick="setScreen('DETAIL')" class="flex-1 h-12 min-h-[48px] bg-slate-900 hover:bg-black active:scale-[0.98] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition cursor-pointer shadow-sm">
-                <span>Pilih & Booking</span>
-                <span>${Icons.arrowRight}</span>
-              </button>
-              <button onclick="toggleBookmark('${spot.id}')" class="w-12 h-12 min-h-[48px] bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center transition cursor-pointer border border-slate-200">
-                ${isBookmarked ? Icons.bookmarkFilled : Icons.bookmark}
-              </button>
-              <button onclick="showToast('Rute navigasi ke ${spot.shortName} dimulai');" class="w-12 h-12 min-h-[48px] bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center transition cursor-pointer border border-slate-200">
-                ${Icons.navigation}
-              </button>
+            <div class="bg-white rounded-2xl p-3.5 shadow-xl border border-slate-200/90 flex flex-col gap-2.5">
+              <div class="flex items-start gap-3 cursor-pointer" onclick="setScreen('DETAIL')">
+                <img src="${spot.photo}" alt="${spot.name}" class="w-20 h-20 rounded-xl object-cover shrink-0 border border-slate-100">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-1 mb-0.5">
+                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded ${spot.isOpen === false ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-700'}">
+                      ${spot.isOpen === false ? 'Ditutup Sementara' : `${spot.availableSlots} Slot Kosong`}
+                    </span>
+                    <span class="text-[11px] font-medium text-slate-400">${spot.distance}</span>
+                  </div>
+                  <h3 class="font-bold text-slate-900 text-xs truncate leading-snug">${spot.name}</h3>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">${spot.address}</p>
+                  <div class="flex items-center justify-between mt-1.5">
+                    <div class="flex items-center gap-1 text-[11px] text-slate-700 font-medium">
+                      ${Icons.star}
+                      <span>${spot.rating}</span>
+                      <span class="text-slate-400">(${spot.reviews})</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-xs font-bold text-emerald-600">${formatIDR(displayBasePrice)} / 3 Jam</span>
+                      <span class="block text-[9px] text-slate-400">+ Fee layanan Rp 1.000</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex gap-2 pt-1 border-t border-slate-100">
+                <button onclick="if(state.selectedSpot && state.selectedSpot.isOpen === false){ showToast('Garasi sedang ditutup sementara oleh pemilik'); return; } setScreen('DETAIL');" class="flex-1 h-11 min-h-[44px] ${spot.isOpen === false ? 'bg-slate-300 text-slate-600' : 'bg-slate-900 hover:bg-black text-white'} active:scale-[0.98] font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition cursor-pointer shadow-sm">
+                  <span>${spot.isOpen === false ? 'Lahan Tutup' : 'Pilih & Booking'}</span>
+                  <span>${Icons.arrowRight}</span>
+                </button>
+                <button onclick="toggleBookmark('${spot.id}')" class="w-11 h-11 min-h-[44px] bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center transition cursor-pointer border border-slate-200">
+                  ${isBookmarked ? Icons.bookmarkFilled : Icons.bookmark}
+                </button>
+                <button onclick="showToast('Rute navigasi ke ${spot.shortName} (${spot.distance}) dimulai');" class="w-11 h-11 min-h-[44px] bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center transition cursor-pointer border border-slate-200">
+                  ${Icons.navigation}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1176,10 +1342,10 @@
               </div>
             </div>
 
-            <!-- Ketentuan Tarif Resmi Flat 3 Jam -->
+            <!-- Ketentuan Tarif Resmi Flat 3 Jam + Biaya Layanan Aplikasi (Final UAS) -->
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2.5">
               <div class="flex justify-between items-center">
-                <span class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Ketentuan Tarif Flat</span>
+                <span class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Ketentuan Tarif Transparan</span>
                 <button onclick="state.faqModal = true; render();" class="text-[11px] font-medium text-emerald-600 hover:underline cursor-pointer flex items-center gap-1">
                   ${Icons.info}
                   <span>Ketentuan</span>
@@ -1201,10 +1367,34 @@
                 </div>
               </div>
 
+              <div class="p-2.5 bg-emerald-50/70 rounded-xl border border-emerald-200/80 flex items-center justify-between text-[11px]">
+                <div>
+                  <span class="font-bold text-emerald-900">Biaya Layanan Aplikasi (Platform Fee)</span>
+                  <div class="text-[10px] text-emerald-700">Dicatat terpisah • Total awal Motor Rp 4.000 / Mobil Rp 9.000</div>
+                </div>
+                <span class="font-extrabold text-emerald-800 shrink-0">+Rp 1.000</span>
+              </div>
+
               <div class="p-2.5 bg-slate-100/70 rounded-xl text-[11px] text-slate-600 leading-relaxed border border-slate-200/60">
-                <strong>Prinsip Penggunaan Adil:</strong> Pembayaran di muka adalah deposit penguncian slot. Kelebihan waktu di atas 3 jam dihitung presisi berdasarkan durasi aktual saat keluar.
+                <strong>Aturan Flat 1–3 Jam &amp; Overstay:</strong> Deposit berlaku flat untuk 1–3 jam pertama (tidak ada pengembalian sisa waktu bila keluar &lt; 3 jam, dan <strong>Rp 0 tambahan</strong> bila &le; 3 jam). Kelebihan waktu &gt; 3 jam dibulatkan ke atas Rp 1.000/jam.
               </div>
             </div>
+
+            <!-- Rekomendasi UMKM Sekitar Garasi -->
+            ${(() => {
+          const umkm = getNearbyUmkmForSpot(spot.id);
+          return `
+                <div onclick="openUmkmModal('${umkm.id}')" class="bg-amber-50/80 border border-amber-200 rounded-2xl p-3.5 flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition">
+                  <div class="min-w-0">
+                    <span class="px-1.5 py-0.5 bg-amber-500 text-white text-[9px] font-bold rounded uppercase">Partner UMKM Sekitar</span>
+                    <div class="font-bold text-slate-900 text-xs mt-1 truncate">${umkm.name}</div>
+                    <div class="text-[11px] text-amber-900 font-medium truncate">${umkm.promoTitle}</div>
+                    <div class="text-[10px] text-slate-500 mt-0.5">${umkm.distance} • ${umkm.hours}</div>
+                  </div>
+                  <span class="px-2.5 py-1.5 bg-white border border-amber-200 text-amber-900 rounded-xl text-[10px] font-bold shrink-0">Detail</span>
+                </div>
+              `;
+        })()}
             <div id="detail-bottom-spacer" class="h-28 w-full shrink-0"></div>
           </div>
 
@@ -1224,9 +1414,13 @@
     function renderCheckout() {
       const spot = state.selectedSpot || SPOTS[0];
       const baseDeposit = getBaseDepositPrice(state.vehicleType);
+      const canUseRuangPass = state.vehicleType === 'MOTOR' && state.ruangPass.active && state.ruangPass.remainingQuota > 0;
+      const usingRuangPass = canUseRuangPass && state.useRuangPassCheckout;
+      const effectivePlatformFee = usingRuangPass ? 0 : Math.max(0, PLATFORM_FEE - state.discountAmount);
+      const effectiveBaseDeposit = usingRuangPass ? 0 : baseDeposit;
       const estExtraHours = state.plannedDuration > 3 ? (state.plannedDuration - 3) : 0;
       const estExtraCost = estExtraHours * 1000;
-      const finalPayNow = Math.max(0, baseDeposit - state.discountAmount);
+      const finalPayNow = effectiveBaseDeposit + effectivePlatformFee;
 
       return `
         <div class="flex flex-col min-h-screen bg-slate-50 pb-36" id="screen-checkout">
@@ -1252,17 +1446,41 @@
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2.5">
               <label class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">1. Jenis Kendaraan</label>
               <div class="grid grid-cols-2 gap-2.5">
-                <button type="button" onclick="state.vehicleType = 'MOBIL'; if(!state.plateNumber || state.plateNumber === 'N 8892 XY') state.plateNumber = 'N 1234 ABC'; render();" class="p-3 rounded-xl border text-center transition flex flex-col items-center gap-1.5 cursor-pointer ${state.vehicleType === 'MOBIL' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
+                <button type="button" onclick="state.vehicleType = 'MOBIL'; state.useRuangPassCheckout = false; if(!state.plateNumber || state.plateNumber === 'N 8892 XY') state.plateNumber = 'N 1234 ABC'; render();" class="p-3 rounded-xl border text-center transition flex flex-col items-center gap-1.5 cursor-pointer ${state.vehicleType === 'MOBIL' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
                   <div class="p-2 rounded-lg ${state.vehicleType === 'MOBIL' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}">${Icons.car}</div>
                   <div class="font-bold text-xs text-slate-900">Mobil</div>
-                  <div class="text-[11px] font-semibold text-emerald-600">Deposit Rp 8.000 <span class="text-[10px] text-slate-400 font-normal">(Flat 3 Jam)</span></div>
+                  <div class="text-[11px] font-semibold text-emerald-600">Rp 8.000 <span class="text-[10px] text-slate-400 font-normal">(Flat 3 Jam)</span></div>
                 </button>
                 <button type="button" onclick="state.vehicleType = 'MOTOR'; if(!state.plateNumber || state.plateNumber === 'N 1234 ABC') state.plateNumber = 'N 8892 XY'; render();" class="p-3 rounded-xl border text-center transition flex flex-col items-center gap-1.5 cursor-pointer ${state.vehicleType === 'MOTOR' ? 'border-slate-900 bg-slate-50 ring-1 ring-slate-900' : 'border-slate-200 bg-white hover:border-slate-300'}">
                   <div class="p-2 rounded-lg ${state.vehicleType === 'MOTOR' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}">${Icons.bike}</div>
                   <div class="font-bold text-xs text-slate-900">Motor</div>
-                  <div class="text-[11px] font-semibold text-emerald-600">Deposit Rp 3.000 <span class="text-[10px] text-slate-400 font-normal">(Flat 3 Jam)</span></div>
+                  <div class="text-[11px] font-semibold text-emerald-600">Rp 3.000 <span class="text-[10px] text-slate-400 font-normal">(Flat 3 Jam)</span></div>
                 </button>
               </div>
+
+              <!-- Opsi / Promo RuangPass Khusus Motor -->
+              ${state.vehicleType === 'MOTOR' ? (canUseRuangPass ? `
+                <div onclick="state.useRuangPassCheckout = !state.useRuangPassCheckout; render();" class="p-3 rounded-xl border transition flex items-center justify-between cursor-pointer ${usingRuangPass ? 'bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500' : 'bg-slate-50 border-slate-200'}">
+                  <div>
+                    <div class="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                      <span>★ Gunakan Kuota RuangPass</span>
+                      <span class="px-1.5 py-0.5 bg-emerald-600 text-white text-[9px] rounded">Sisa ${state.ruangPass.remainingQuota}/20</span>
+                    </div>
+                    <div class="text-[10px] text-emerald-700 mt-0.5">Potong 1 kuota motor • Rp 0 sekarang &amp; bebas biaya layanan</div>
+                  </div>
+                  <div class="w-5 h-5 rounded-md border flex items-center justify-center ${usingRuangPass ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-white border-slate-300'}">
+                    ${usingRuangPass ? Icons.check : ''}
+                  </div>
+                </div>
+              ` : `
+                <div onclick="state.ruangPassModal = true; render();" class="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200 flex items-center justify-between gap-2 cursor-pointer hover:bg-emerald-50 transition">
+                  <div>
+                    <div class="text-[11px] font-bold text-emerald-900">★ Hemat dengan RuangPass (Rp 55.000/bln)</div>
+                    <div class="text-[10px] text-emerald-700">20x parkir motor (Rp 2.750/parkir vs Rp 4.000 reguler)</div>
+                  </div>
+                  <span class="px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded-lg shrink-0">Aktifkan</span>
+                </div>
+              `) : ''}
             </div>
 
             <!-- 2. Plat Nomor Kendaraan -->
@@ -1292,7 +1510,7 @@
                   <span class="text-[10px] text-slate-400">Estimasi waktu parkir Anda</span>
                 </div>
                 <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${state.plannedDuration <= 3 ? 'bg-slate-100 text-slate-700' : 'bg-amber-50 text-amber-800'}">
-                  ${state.plannedDuration <= 3 ? 'Paket Flat 3 Jam' : `Rencana Ekstra +${estExtraHours} Jam`}
+                  ${state.plannedDuration <= 3 ? 'Paket Flat 1–3 Jam' : `Rencana Ekstra +${estExtraHours} Jam`}
                 </span>
               </div>
 
@@ -1311,8 +1529,8 @@
                   </div>
                   <div class="text-[10px] text-slate-400 mt-0.5">
                     ${state.plannedDuration <= 3
-          ? 'Lunas dengan deposit flat awal'
-          : `Estimasi ekstra +${formatIDR(estExtraCost)} (dipotong di akhir)`}
+          ? 'Lunas dengan deposit flat 1–3 jam'
+          : `Estimasi overstay +${formatIDR(estExtraCost)} (dibayar saat keluar)`}
                   </div>
                 </div>
                 <button 
@@ -1325,7 +1543,7 @@
               </div>
 
               <p class="text-[11px] text-slate-500 leading-relaxed">
-                Biaya yang ditagih saat ini adalah <strong>deposit tanda jadi flat 3 jam</strong>. Jika durasi aktual Anda selesai lebih awal (&le; 3 jam), tidak ada pemotongan tambahan.
+                <strong>Ketentuan Flat 1–3 Jam:</strong> Pembayaran di awal mengunci slot Anda secara flat (tidak ada pengembalian sisa waktu jika keluar &lt; 3 jam, dan <strong>Rp 0 tambahan</strong> bila &le; 3 jam). Overstay &gt; 3 jam dikenakan +Rp 1.000/jam.
               </p>
             </div>
 
@@ -1340,7 +1558,7 @@
                     ${Icons.wallet}
                   </div>
                   <div>
-                    <div class="font-bold text-xs text-slate-900">Saldo RuangPay (E-Wallet)</div>
+                    <div class="font-bold text-xs text-slate-900">Saldo RuangPay (E-Wallet Uji)</div>
                     <div class="text-[11px] text-slate-500">Saldo aktif: <strong class="text-emerald-600">${formatIDR(state.walletBalance)}</strong></div>
                   </div>
                 </div>
@@ -1356,7 +1574,7 @@
                     QR
                   </div>
                   <div>
-                    <div class="font-bold text-xs text-slate-900">QRIS Instan (Semua Bank / E-Wallet)</div>
+                    <div class="font-bold text-xs text-slate-900">QRIS Instan (Payment Gateway Resmi)</div>
                     <div class="text-[11px] text-slate-500">GoPay, OVO, ShopeePay, BCA, Mandiri</div>
                   </div>
                 </div>
@@ -1366,55 +1584,57 @@
               </div>
             </div>
 
-            <!-- 5. Kode Promo / Diskon (Interaktif) -->
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2">
-              <label class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">5. Kode Promo / Diskon</label>
-              <div class="flex gap-2">
-                <input 
-                  id="checkout-promo-input" 
-                  type="text" 
-                  value="${state.promoCode}" 
-                  placeholder="Gunakan kode: HEMAT1K" 
-                  class="flex-1 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono font-semibold uppercase focus:bg-white focus:border-slate-900"
-                >
-                <button type="button" onclick="applyPromoCode()" class="px-4 h-10 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold cursor-pointer transition">
-                  Terapkan
-                </button>
-              </div>
-              ${state.discountAmount > 0 ? `
-                <div class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-                  ${Icons.check} <span>Diskon promo Rp 1.000 berhasil diterapkan!</span>
+            <!-- 5. Kode Promo / Bebas Biaya Layanan (Bab 9.3) -->
+            ${!usingRuangPass ? `
+              <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2">
+                <label class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">5. Kode Promo (Bebas Biaya Layanan)</label>
+                <div class="flex gap-2">
+                  <input 
+                    id="checkout-promo-input" 
+                    type="text" 
+                    value="${state.promoCode}" 
+                    placeholder="Gunakan kode: HEMAT1K" 
+                    class="flex-1 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono font-semibold uppercase focus:bg-white focus:border-slate-900"
+                  >
+                  <button type="button" onclick="applyPromoCode()" class="px-4 h-10 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold cursor-pointer transition">
+                    Terapkan
+                  </button>
                 </div>
-              ` : ''}
-            </div>
+                ${state.discountAmount > 0 ? `
+                  <div class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                    ${Icons.check} <span>Bebas Biaya Layanan Rp 1.000 diterapkan (hak mitra tetap 100% utuh).</span>
+                  </div>
+                ` : ''}
+              </div>
+            ` : ''}
 
-            <!-- Rincian Biaya Transparansi -->
+            <!-- Rincian Biaya Transparansi (Selaras Tabel 10.1 UAS) -->
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-2 text-xs">
-              <span class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">Rincian Pembayaran Deposit</span>
+              <span class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">Rincian Pembayaran Transparan</span>
 
               <div class="flex justify-between text-slate-600">
-                <span>Deposit Penguncian Slot (Flat 3 Jam):</span>
-                <span class="font-bold text-slate-900">${formatIDR(baseDeposit)}</span>
+                <span>Deposit Tarif Parkir (Flat 1–3 Jam):</span>
+                <span class="font-bold text-slate-900">${usingRuangPass ? '1 Kuota RuangPass' : formatIDR(baseDeposit)}</span>
               </div>
 
-              ${state.discountAmount > 0 ? `
-                <div class="flex justify-between text-emerald-600">
-                  <span>Potongan Diskon Promo:</span>
-                  <span class="font-bold">-${formatIDR(state.discountAmount)}</span>
-                </div>
-              ` : ''}
+              <div class="flex justify-between text-slate-600">
+                <span>Biaya Layanan Aplikasi (Platform Fee):</span>
+                <span class="font-bold ${effectivePlatformFee === 0 ? 'text-emerald-600' : 'text-slate-900'}">
+                  ${effectivePlatformFee === 0 ? '<span class="line-through text-slate-400 font-normal mr-1">Rp 1.000</span>Rp 0' : formatIDR(effectivePlatformFee)}
+                </span>
+              </div>
 
               <div class="flex justify-between text-slate-600">
-                <span>Rencana Tambahan (${estExtraHours} Jam x Rp 1.000):</span>
+                <span>Estimasi Overstay (${estExtraHours} Jam x Rp 1.000):</span>
                 <span class="font-medium text-slate-400">
-                  ${estExtraCost > 0 ? `Estimasi +${formatIDR(estExtraCost)} (di akhir)` : 'Rp 0'}
+                  ${estExtraCost > 0 ? `Est. +${formatIDR(estExtraCost)} (saat keluar)` : 'Rp 0'}
                 </span>
               </div>
 
               <div class="pt-2 border-t border-slate-100 flex justify-between items-baseline">
                 <div>
-                  <div class="font-bold text-slate-900 text-sm">Total Deposit Sekarang</div>
-                  <div class="text-[10px] text-slate-400">Slot terkunci aman anti-no show</div>
+                  <div class="font-bold text-slate-900 text-sm">Total Bayar Sekarang</div>
+                  <div class="text-[10px] text-slate-400">${usingRuangPass ? 'Sisa kuota menjadi ' + (state.ruangPass.remainingQuota - 1) + '/20' : 'Termasuk Biaya Layanan • Slot terkunci aman'}</div>
                 </div>
                 <span class="text-xl font-black text-slate-900">${formatIDR(finalPayNow)}</span>
               </div>
@@ -1424,8 +1644,8 @@
 
           <!-- Bottom Action Bar -->
           <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-lg">
-            <button onclick="handleBookingPayment(${finalPayNow})" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-base transition shadow-md flex items-center justify-center gap-2.5 cursor-pointer">
-              <span>Bayar Deposit (${formatIDR(finalPayNow)})</span>
+            <button onclick="handleBookingPayment(${finalPayNow}, ${effectiveBaseDeposit}, ${effectivePlatformFee}, ${usingRuangPass})" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-base transition shadow-md flex items-center justify-center gap-2.5 cursor-pointer">
+              <span>${usingRuangPass ? 'Konfirmasi Booking (1 Kuota RuangPass)' : `Bayar Sekarang (${formatIDR(finalPayNow)})`}</span>
               <span>${Icons.arrowRight}</span>
             </button>
           </div>
@@ -1437,24 +1657,30 @@
       const code = document.getElementById('checkout-promo-input').value.trim().toUpperCase();
       state.promoCode = code;
       if (code === 'HEMAT1K' || code === 'DISKONPARKIR') {
-        state.discountAmount = 1000;
-        showToast('Voucher valid! Diskon Rp 1.000 diterapkan.');
+        state.discountAmount = PLATFORM_FEE;
+        showToast('Promo valid! Bebas Biaya Layanan Aplikasi Rp 1.000.');
       } else if (code === '') {
         state.discountAmount = 0;
       } else {
         state.discountAmount = 0;
-        showToast('Kode voucher tidak ditemukan');
+        showToast('Kode voucher tidak ditemukan (coba: HEMAT1K)');
       }
       render();
     }
 
-    function handleBookingPayment(finalTotal) {
+    function handleBookingPayment(finalTotal, baseParkingTariff, platformFeeApplied, usedRuangPass) {
       const plateEl = document.getElementById('checkout-plate-input');
       if (plateEl && plateEl.value.trim() !== '') {
         state.plateNumber = plateEl.value.trim().toUpperCase();
       }
 
-      if (state.paymentMethod === 'SALDO') {
+      if (usedRuangPass) {
+        if (!state.ruangPass.active || state.ruangPass.remainingQuota <= 0) {
+          showToast('Kuota RuangPass tidak mencukupi.');
+          return;
+        }
+        state.ruangPass.remainingQuota -= 1;
+      } else if (state.paymentMethod === 'SALDO') {
         if (state.walletBalance < finalTotal) {
           showToast('Saldo RuangPay tidak mencukupi, silakan isi saldo.');
           state.topUpModal = true;
@@ -1464,20 +1690,32 @@
         state.walletBalance -= finalTotal;
       }
 
+      const spot = state.selectedSpot || SPOTS[0];
+      if (spot.availableSlots > 0) {
+        spot.availableSlots -= 1;
+      }
+
       const bookingCode = `RP-${Math.floor(10000 + Math.random() * 90000)}`;
       const assignedSlot = state.vehicleType === 'MOTOR' ? 'Slot M-02' : 'Slot A-02';
 
       state.activeBooking = {
         code: bookingCode,
-        spotName: state.selectedSpot ? state.selectedSpot.name : 'Garasi Pak Budi - Soekarno Hatta No. 45',
+        spotId: spot.id,
+        spotName: spot.name,
+        jukirName: spot.jukirName,
+        jukirPhone: spot.jukirPhone || '0878-9988-7766',
+        accessNote: spot.accessNote || spot.address,
         plate: state.plateNumber,
         slot: assignedSlot,
         vehicle: state.vehicleType,
         plannedDuration: state.plannedDuration,
+        baseParkingTariff: baseParkingTariff,
+        platformFee: platformFeeApplied,
         depositPaid: finalTotal,
         overstayPaid: 0,
+        usedRuangPass: !!usedRuangPass,
         checkInTime: null,
-        paymentMethod: state.paymentMethod
+        paymentMethod: usedRuangPass ? 'RUANGPASS' : state.paymentMethod
       };
 
       state.ticketStatus = 'WAITING_CHECKIN';
@@ -1487,10 +1725,11 @@
       state.parkedVehicles.unshift({
         plate: state.plateNumber,
         type: state.vehicleType === 'MOBIL' ? 'Mobil Tamu' : 'Motor Tamu',
+        vehicleKind: state.vehicleType,
         slot: assignedSlot,
         durationNow: 'Menunggu Check-in',
         durationSec: 0,
-        note: `Booking #${bookingCode}`,
+        note: usedRuangPass ? `RuangPass #${bookingCode}` : `Booking #${bookingCode}`,
         status: 'WAITING_CHECKIN'
       });
 
@@ -1502,13 +1741,19 @@
         plate: state.activeBooking.plate,
         date: 'Hari Ini',
         duration: `Rencana ${state.plannedDuration} Jam`,
-        deposit: finalTotal,
+        deposit: baseParkingTariff,
+        platformFee: platformFeeApplied,
         overstay: 0,
         cost: finalTotal,
-        status: 'Menunggu Check-in'
+        usedRuangPass: !!usedRuangPass,
+        status: 'Menunggu Check-in',
+        isRated: false,
+        rating: null
       });
 
-      showToast(`Deposit ${formatIDR(finalTotal)} terbayar. E-Tiket aktif!`);
+      showToast(usedRuangPass
+        ? `1 Kuota RuangPass terpakai (sisa ${state.ruangPass.remainingQuota}/20). E-Tiket aktif!`
+        : `Total ${formatIDR(finalTotal)} terbayar (termasuk Fee). E-Tiket aktif!`);
       setScreen('TICKET');
     }
 
@@ -1569,26 +1814,26 @@
               `)}
 
               <!-- Realistic Modern QR Code Box -->
-              <div class="w-56 h-56 mx-auto bg-slate-50 border-2 ${isWaiting ? 'border-amber-300' : 'border-slate-900'} rounded-2xl p-4 flex flex-col justify-between items-center relative">
+              <div class="w-44 h-44 mx-auto bg-slate-50 border-2 ${isWaiting ? 'border-amber-300' : 'border-slate-900'} rounded-2xl p-3 flex flex-col justify-between items-center relative">
                 <div class="w-full flex justify-between items-center">
-                  <div class="w-6 h-6 bg-slate-900 rounded flex items-center justify-center"><div class="w-2.5 h-2.5 bg-white"></div></div>
+                  <div class="w-5 h-5 bg-slate-900 rounded flex items-center justify-center"><div class="w-2 h-2 bg-white"></div></div>
                   <span class="text-[9px] font-mono font-bold tracking-widest text-slate-400">RUANGPARKIR</span>
-                  <div class="w-6 h-6 bg-slate-900 rounded flex items-center justify-center"><div class="w-2.5 h-2.5 bg-white"></div></div>
+                  <div class="w-5 h-5 bg-slate-900 rounded flex items-center justify-center"><div class="w-2 h-2 bg-white"></div></div>
                 </div>
 
                 <div class="my-auto flex flex-col items-center">
-                  <svg class="w-24 h-24 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
+                  <svg class="w-20 h-20 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm8-2h2v2h-2v-2zm4 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm6-4h2v4h-2v-4zm-2 4h2v2h-2v-2zm2 2h2v2h-2v-2zm-8 0h4v2h-4v-2z"/>
                   </svg>
-                  <span class="text-xs font-mono font-bold text-slate-900 mt-1">#${ticket.code}</span>
+                  <span class="text-xs font-mono font-bold text-slate-900 mt-0.5">#${ticket.code}</span>
                 </div>
 
                 <div class="w-full flex justify-between items-end">
-                  <div class="w-6 h-6 bg-slate-900 rounded flex items-center justify-center"><div class="w-2.5 h-2.5 bg-white"></div></div>
+                  <div class="w-5 h-5 bg-slate-900 rounded flex items-center justify-center"><div class="w-2 h-2 bg-white"></div></div>
                   <span class="text-[9px] font-semibold text-slate-600 bg-slate-200/80 px-2 py-0.5 rounded">
                     ${isWaiting ? 'Tunjukkan ke Petugas' : 'Terverifikasi Check-in'}
                   </span>
-                  <div class="w-6 h-6 bg-slate-900 rounded flex items-center justify-center"><div class="w-2.5 h-2.5 bg-white"></div></div>
+                  <div class="w-5 h-5 bg-slate-900 rounded flex items-center justify-center"><div class="w-2 h-2 bg-white"></div></div>
                 </div>
               </div>
 
@@ -1620,40 +1865,44 @@
                       <span>${Icons.scan}</span>
                       <span>[Simulasi Lapangan] Jukir Scan Masuk</span>
                     </button>
-                    <button onclick="showToast('Membuka WhatsApp Jukir (0812-3456-7890)...')" class="h-11 w-full bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
+                    <button onclick="state.contactJukirModal = true; render();" class="h-11 w-full bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
                       <span class="text-emerald-600">${Icons.phone}</span>
-                      <span>Hubungi Jukir</span>
+                      <span>Hubungi Jukir (${ticket.jukirName ? ticket.jukirName.split(' (')[0] : 'Petugas'})</span>
                     </button>
                                     ` : (isFinished ? `
                     <!-- Kartu Penilaian & Ulasan Pasca Selesai Bayar -->
-                    ${state.historyList[0] && state.historyList[0].isRated ? `
+                    ${(() => {
+            const hist = state.historyList.find(h => h.code === ticket.code) || state.historyList[0];
+            const ratedScore = hist && hist.rating ? hist.rating : 5;
+            return hist && hist.isRated ? `
                       <div class="p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center justify-between text-left">
                         <div class="flex items-center gap-2">
                           <span class="text-amber-500 scale-110">${Icons.star}</span>
                           <div>
                             <div class="text-xs font-bold text-amber-900">Ulasan Parkir Terkirim</div>
-                            <div class="text-[10px] text-amber-700">Terima kasih atas masukan & rating Anda!</div>
+                            <div class="text-[10px] text-amber-700">${ratedScore < 3 ? 'Tim operasional QC otomatis meninjau dalam 24 jam' : 'Terima kasih atas masukan & rating Anda!'}</div>
                           </div>
                         </div>
-                        <span class="text-xs font-bold text-amber-900 bg-white/80 px-2 py-0.5 rounded-md border border-amber-200">5.0 ★</span>
+                        <span class="text-xs font-bold text-amber-900 bg-white/80 px-2 py-0.5 rounded-md border border-amber-200">${ratedScore}.0 ★</span>
                       </div>
                     ` : `
                       <div class="p-4 bg-white border border-amber-200 rounded-2xl shadow-xs text-center space-y-2">
                         <div class="text-xs font-bold text-slate-800">Bagaimana Pengalaman Parkir Anda?</div>
-                        <p class="text-[10px] text-slate-500">Beri ulasan untuk membantu mitra garasi warga</p>
+                        <p class="text-[10px] text-slate-500">Beri ulasan untuk menjaga mutu jukir &amp; garasi warga</p>
                         <div class="flex justify-center gap-1.5 py-1">
                           ${[1, 2, 3, 4, 5].map(st => `
-                            <button type="button" onclick="state.ratingScore = ${st}; submitRatingModal();" class="p-1 hover:scale-125 transition cursor-pointer text-amber-400">
+                            <button type="button" onclick="state.ratingTargetCode = '${ticket.code}'; state.ratingScore = ${st}; state.ratingModal = true; render();" class="p-1 hover:scale-125 transition cursor-pointer text-amber-400">
                               ${Icons.star}
                             </button>
                           `).join('')}
                         </div>
-                        <button onclick="state.ratingModal = true; render();" class="h-8 px-4 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition cursor-pointer">
+                        <button onclick="state.ratingTargetCode = '${ticket.code}'; state.ratingModal = true; render();" class="h-8 px-4 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition cursor-pointer">
                           <span>${Icons.star}</span>
                           <span>Tulis Ulasan & Bintang</span>
                         </button>
                       </div>
-                    `}
+                    `;
+          })()}
                     <button onclick="setScreen('HOME')" class="h-14 min-h-[54px] w-full bg-slate-900 hover:bg-black text-white rounded-2xl font-bold text-sm transition cursor-pointer shadow-md flex items-center justify-center gap-2">
                       <span>Cari Tempat Parkir Baru</span>
                       <span>${Icons.arrowRight}</span>
@@ -1663,9 +1912,32 @@
                     <span>${Icons.scan}</span>
                     <span>Pindai QR / Verifikasi Keluar Lapangan</span>
                   </button>
+                  <button onclick="state.contactJukirModal = true; render();" class="h-11 w-full bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
+                    <span class="text-emerald-600">${Icons.phone}</span>
+                    <span>Hubungi Jukir (${ticket.jukirName ? ticket.jukirName.split(' (')[0] : 'Petugas'})</span>
+                  </button>
                 `)}
               </div>
             </div>
+
+            <!-- Slot Promosi UMKM Sekitar pada Layar E-Tiket Aktif (Bab 10.1 Featured Merchant) -->
+            ${!isFinished ? (() => {
+          const umkm = getNearbyUmkmForSpot(ticket.spotId || '1');
+          return `
+                <div onclick="openUmkmModal('${umkm.id}')" class="bg-amber-50 border border-amber-200/90 rounded-2xl p-4 shadow-xs flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="px-1.5 py-0.5 bg-amber-500 text-white text-[9px] font-bold rounded uppercase">Promo UMKM Dekat Garasi</span>
+                      <span class="text-[10px] text-amber-800 font-semibold">${umkm.distance}</span>
+                    </div>
+                    <div class="font-bold text-slate-900 text-xs mt-1 truncate">${umkm.name}</div>
+                    <div class="text-[11px] text-amber-900 font-semibold">${umkm.promoTitle}</div>
+                    <div class="text-[10px] text-slate-500 mt-0.5">Tunjukkan E-Tiket #${ticket.code} di kasir</div>
+                  </div>
+                  <span class="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-[10px] font-bold shrink-0">Klaim</span>
+                </div>
+              `;
+        })() : ''}
           </div>
 
           ${renderBottomNav('TICKET')}
@@ -1682,6 +1954,8 @@
     function handleRatingHistory(code) {
       const item = state.historyList.find(h => h.code === code);
       if (item) {
+        state.ratingTargetCode = code;
+        state.ratingScore = item.rating || 5;
         state.ratingModal = true;
         render();
       } else {
@@ -1722,7 +1996,7 @@
                       <div class="text-[11px] text-slate-400">Penilaian Layanan:</div>
                       ${h.isRated ? `
                         <span class="text-[11px] font-semibold text-amber-600 flex items-center gap-1">
-                          ${Icons.star} <span>5.0 (Ulasan Terkirim)</span>
+                          ${Icons.star} <span>${h.rating || 5}.0 (Ulasan Terkirim)</span>
                         </span>
                       ` : `
                         <button onclick="handleRatingHistory('${h.code}')" class="h-7 px-2.5 bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-900 border border-amber-200/80 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition cursor-pointer shadow-2xs">
@@ -1741,11 +2015,31 @@
       `;
     }
 
+    function toggleGarageOpen(garageId) {
+      const targetGar = myGarages.find(x => x.id === garageId);
+      if (targetGar) {
+        targetGar.isOpen = !targetGar.isOpen;
+        if (garageId === '1') {
+          state.isGarageOpen = targetGar.isOpen;
+        }
+        const sp = SPOTS.find(s => s.id === garageId);
+        if (sp) sp.isOpen = targetGar.isOpen;
+        showToast(targetGar.isOpen ? `Lahan "${targetGar.name}" dibuka untuk pemesanan` : `Lahan "${targetGar.name}" ditutup sementara`);
+        render();
+      }
+    }
+
     // ==========================================
     // SCREEN 7: LANDOWNER DASHBOARD (ALUR 7.2 B.1 & B.2)
     // ==========================================
     function renderLandowner() {
-      const occupied = state.parkedVehicles.filter(v => v.status === 'ACTIVE').length;
+      const activeList = state.parkedVehicles.filter(v => v.status === 'ACTIVE');
+      const occupiedCar = activeList.filter(v => v.vehicleKind === 'MOBIL' || (!v.vehicleKind && !v.type.includes('Motor') && !v.type.includes('Vario'))).length;
+      const occupiedBike = activeList.length - occupiedCar;
+      const mainGar = myGarages[0] || { slotsCar: 4, slotsBike: 8 };
+      const totalCapacity = mainGar.slotsCar + mainGar.slotsBike;
+      const occupiedTotal = activeList.length;
+
       return `
         <div class="flex flex-col min-h-screen bg-slate-50 pb-28" id="screen-landowner">
           <div class="bg-slate-900 text-white rounded-b-3xl p-6 shadow-lg">
@@ -1767,17 +2061,17 @@
                   <span>${state.isGarageOpen ? 'Buka untuk Umum' : 'Ditutup Sementara'}</span>
                 </div>
               </div>
-              <button onclick="state.isGarageOpen = !state.isGarageOpen; showToast(state.isGarageOpen ? 'Lahan dibuka untuk pemesanan' : 'Lahan ditutup sementara'); render();" class="relative w-16 h-8 rounded-full transition-colors p-1 flex items-center cursor-pointer ${state.isGarageOpen ? 'bg-emerald-500' : 'bg-slate-600'}">
+              <button onclick="toggleGarageOpen('1')" class="relative w-16 h-8 rounded-full transition-colors p-1 flex items-center cursor-pointer ${state.isGarageOpen ? 'bg-emerald-500' : 'bg-slate-600'}">
                 <div class="w-6 h-6 rounded-full bg-white shadow-md transform transition-transform flex items-center justify-center text-[9px] font-bold ${state.isGarageOpen ? 'translate-x-8 text-emerald-600' : 'translate-x-0 text-slate-700'}">
                   ${state.isGarageOpen ? 'ON' : 'OFF'}
                 </div>
               </button>
             </div>
 
-            <!-- B.2 Pendapatan Bagi Hasil 40% -->
+            <!-- B.2 Pendapatan Bagi Hasil 40% Utuh (Tanpa Potongan Fee Aplikasi) -->
             <div class="mt-5 pt-4 border-t border-slate-800 flex justify-between items-center">
               <div>
-                <div class="text-[11px] text-slate-400 font-medium">Bagi Hasil Pemilik (40%) Hari Ini</div>
+                <div class="text-[11px] text-slate-400 font-medium">Bagi Hasil Pemilik (40% Utuh) Hari Ini</div>
                 <div class="text-2xl font-black text-white mt-0.5">${formatIDR(state.todayRevenue)}</div>
                 <div class="text-[11px] text-emerald-400 font-medium">Saldo Tertampung: ${formatIDR(state.landownerBalance)}</div>
               </div>
@@ -1789,22 +2083,22 @@
           </div>
 
           <div class="p-4 space-y-4">
-            <!-- Kapasitas Slot -->
+            <!-- Kapasitas Slot Mobil & Motor Real-Time -->
             <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm flex items-center justify-between">
               <div>
                 <span class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Kapasitas Slot Terpakai</span>
-                <div class="text-base font-bold text-slate-900 mt-0.5">${occupied} Terpakai dari 4 Total Slot Mobil</div>
-                <div class="text-[11px] text-slate-500">Sisa ${4 - occupied} slot kosong tersedia</div>
+                <div class="text-sm font-bold text-slate-900 mt-0.5">${occupiedCar}/${mainGar.slotsCar} Mobil • ${occupiedBike}/${mainGar.slotsBike} Motor</div>
+                <div class="text-[11px] text-slate-500">Sisa ${Math.max(0, mainGar.slotsCar - occupiedCar)} slot mobil &amp; ${Math.max(0, mainGar.slotsBike - occupiedBike)} slot motor</div>
               </div>
-              <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center font-bold text-base">
-                ${Math.round((occupied / 4) * 100)}%
+              <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center font-bold text-sm">
+                ${Math.round((occupiedTotal / Math.max(1, totalCapacity)) * 100)}%
               </div>
             </div>
 
             <!-- List Kendaraan Aktif Real-time -->
             <div class="space-y-2.5">
               <div class="flex justify-between items-center">
-                <h2 class="font-bold text-slate-900 text-xs tracking-tight">Kendaraan Terparkir Real-Time (${occupied} Unit)</h2>
+                <h2 class="font-bold text-slate-900 text-xs tracking-tight">Kendaraan Terparkir Real-Time (${occupiedTotal} Unit)</h2>
                 <button onclick="setScreen('LANDOWNER_MANAGE')" class="text-xs font-semibold text-emerald-600 hover:underline cursor-pointer">+ Tambah Garasi</button>
               </div>
 
@@ -1891,10 +2185,10 @@
                     </div>
                   </div>
                   <div class="flex gap-2 pt-1">
-                    <button onclick="g.isOpen = !g.isOpen; showToast('Status operasional diubah'); render();" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl transition cursor-pointer">
+                    <button onclick="toggleGarageOpen('${g.id}')" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl transition cursor-pointer">
                       ${g.isOpen ? 'Tutup Sementara' : 'Buka Garasi'}
                     </button>
-                    <button onclick="showToast('Pengaturan kuota slot dibuka');" class="px-3 py-2 bg-slate-100 text-slate-800 text-xs font-semibold rounded-xl transition cursor-pointer">
+                    <button onclick="showToast('Kuota aktif: ${g.slotsCar} Mobil, ${g.slotsBike} Motor');" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl transition cursor-pointer">
                       Atur Kuota
                     </button>
                   </div>
@@ -1973,8 +2267,32 @@
       };
 
       myGarages.unshift(newGar);
+      SPOTS.push({
+        id: newGar.id,
+        name: name,
+        shortName: name.split(' ').slice(0, 2).join(' '),
+        category: carSlots > 0 ? 'Mobil' : 'Motor',
+        address: address,
+        distance: '300m',
+        distanceNum: 300,
+        availableSlots: carSlots + bikeSlots,
+        totalSlots: carSlots + bikeSlots,
+        rating: 5.0,
+        reviews: 1,
+        priceMotor: 3000,
+        priceMobil: 8000,
+        isFull: false,
+        isOpen: true,
+        jukirName: 'Petugas Mitra Baru (ID: JK-15)',
+        jukirPhone: '0812-0000-1122',
+        accessNote: address,
+        facilities: ['Mitra Baru Terverifikasi', 'Dijaga Jukir', 'Akses Mudah'],
+        photo: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=600&auto=format&fit=crop&q=80',
+        top: '40%',
+        left: '62%'
+      });
       state.addGarageModal = false;
-      showToast('Lahan "' + name + '" berhasil didaftarkan');
+      showToast('Lahan "' + name + '" aktif & tampil di peta Pengemudi!');
       render();
     }
 
@@ -2049,7 +2367,7 @@
       `;
     }
 
-    
+
     function openScanner(mode = 'IN') {
       state.scannerMode = mode;
       state.scannerModal = true;
@@ -2114,7 +2432,7 @@
           showToast('Kamera tidak diizinkan atau tidak ada HTTPS. Mode simulasi HUD tetap berjalan.');
         });
     }
-  
+
 
     // MODAL SCANNER SIMULATION (CHECK-IN MASUK & CHECK-OUT KELUAR)
     function renderScannerModal() {
@@ -2190,8 +2508,22 @@
               </div>
             </div>
 
-            <!-- Optional Camera Toggle & Actions -->
+            <!-- Optional Camera Toggle, Manual Code Fallback (Mitigasi Risiko R3) & Actions -->
             <div class="space-y-2">
+              <div class="flex gap-1.5">
+                <input
+                  id="scanner-manual-code"
+                  type="text"
+                  value="${state.manualCodeInput || ''}"
+                  oninput="state.manualCodeInput = this.value.toUpperCase();"
+                  placeholder="Cadangan kode: ${booking.code}"
+                  class="flex-1 h-9 px-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-mono font-bold uppercase focus:bg-white focus:border-slate-900"
+                >
+                <button type="button" onclick="handleManualCodeVerify()" class="px-2.5 h-9 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-[10px] font-bold cursor-pointer transition shrink-0">
+                  Verifikasi Manual
+                </button>
+              </div>
+
               <button type="button" onclick="togglePhysicalCamera()" class="h-8 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer">
                 <span>${Icons.camera}</span>
                 <span>Uji Kamera Fisik (Opsional)</span>
@@ -2210,7 +2542,20 @@
         </div>
       `;
     }
-  
+
+
+    function handleManualCodeVerify() {
+      const inp = document.getElementById('scanner-manual-code');
+      const code = (inp ? inp.value : state.manualCodeInput || '').trim().toUpperCase();
+      const expected = (state.activeBooking && state.activeBooking.code) ? state.activeBooking.code.toUpperCase() : 'RP-88291';
+      if (!code || code === expected || code === ('#' + expected)) {
+        state.manualCodeInput = '';
+        showToast(`Kode #${expected} terverifikasi manual (cadangan offline/sinyal).`);
+        handleScannerConfirm();
+      } else {
+        showToast(`Kode tidak cocok. Coba masukkan: ${expected}`);
+      }
+    }
 
     // ==========================================
     // SCREEN 10: ATTENDANT LOGS
@@ -2305,7 +2650,7 @@
               </div>
             </div>
 
-            <!-- Saldo E-Wallet -->
+            <!-- Saldo E-Wallet & Paket RuangPass -->
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex justify-between items-center">
               <div>
                 <span class="text-[10px] text-slate-400 font-semibold uppercase">Saldo Dompet RuangPay</span>
@@ -2315,6 +2660,23 @@
                 <span>${Icons.plus}</span> <span>Top Up</span>
               </button>
             </div>
+
+            ${state.userRole === 'DRIVER' ? `
+              <div onclick="state.ruangPassModal = true; render();" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition">
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-black text-emerald-900">★ Langganan RuangPass</span>
+                    <span class="px-1.5 py-0.5 text-[9px] font-bold rounded ${state.ruangPass.active ? 'bg-emerald-600 text-white' : 'bg-white text-emerald-800 border border-emerald-200'}">
+                      ${state.ruangPass.active ? `Aktif • Sisa ${state.ruangPass.remainingQuota}/20` : 'Rp 55.000/bln'}
+                    </span>
+                  </div>
+                  <p class="text-[10px] text-emerald-800 mt-1">
+                    ${state.ruangPass.active ? 'Bebas biaya layanan untuk 20x parkir motor sebulan.' : 'Hemat 20x parkir motor (Rp 2.750/parkir vs Rp 4.000 reguler).'}
+                  </p>
+                </div>
+                <span class="px-2.5 py-1.5 bg-emerald-600 text-white rounded-xl text-[10px] font-bold shrink-0">${state.ruangPass.active ? 'Detail' : 'Beli'}</span>
+              </div>
+            ` : ''}
 
             <!-- Menu Pusat Bantuan & Layanan Pelanggan -->
             <button onclick="state.faqModal = true; render();" class="w-full h-14 min-h-[54px] bg-white hover:bg-slate-50 active:scale-[0.99] rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between text-left transition cursor-pointer">
@@ -2383,14 +2745,23 @@
               ${score === 5 ? 'Sangat Puas (5 Bintang)' : (score === 4 ? 'Puas (4 Bintang)' : (score === 3 ? 'Cukup (3 Bintang)' : 'Kurang Memuaskan'))}
             </div>
 
-            <!-- Quick Feedback Tags -->
-            <div class="flex flex-wrap justify-center gap-1.5 mb-4">
-              ${['Jukir Ramah', 'Garasi Bersih', 'Aman & Terjaga', 'Akses Mudah'].map(tag => `
-                <span class="text-[10px] font-medium bg-slate-50 border border-slate-200 text-slate-600 px-2.5 py-1 rounded-full">
-                  ✓ ${tag}
-                </span>
-              `).join('')}
+            <!-- Quick Feedback Tags (Interaktif) -->
+            <div class="flex flex-wrap justify-center gap-1.5 mb-3">
+              ${['Jukir Ramah', 'Garasi Bersih', 'Aman & Terjaga', 'Akses Mudah'].map(tag => {
+        const active = (state.selectedFeedbackTags || []).includes(tag);
+        return `
+                  <button type="button" onclick="toggleFeedbackTag('${tag}')" class="text-[10px] font-medium px-2.5 py-1 rounded-full border transition cursor-pointer ${active ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}">
+                    ${active ? '✓ ' : '+ '}${tag}
+                  </button>
+                `;
+      }).join('')}
             </div>
+
+            ${score < 3 ? `
+              <div class="mb-3 p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-[10px] text-rose-800 text-left leading-relaxed">
+                <strong>SOP Kendali Mutu (QC):</strong> Penilaian di bawah 3 bintang otomatis memicu peninjauan oleh tim operasional RuangParkir dalam 24 jam.
+              </div>
+            ` : ''}
 
             <div class="space-y-2">
               <button onclick="submitRatingModal()" class="h-12 w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5">
@@ -2406,12 +2777,29 @@
       `;
     }
 
-    function submitRatingModal() {
-      state.ratingModal = false;
-      if (state.historyList[0]) {
-        state.historyList[0].isRated = true;
+    function toggleFeedbackTag(tag) {
+      if (!state.selectedFeedbackTags) state.selectedFeedbackTags = [];
+      if (state.selectedFeedbackTags.includes(tag)) {
+        state.selectedFeedbackTags = state.selectedFeedbackTags.filter(t => t !== tag);
+      } else {
+        state.selectedFeedbackTags.push(tag);
       }
-      showToast(`Terima kasih! Penilaian ${state.ratingScore || 5} Bintang tersimpan.`);
+      render();
+    }
+
+    function submitRatingModal() {
+      const score = state.ratingScore || 5;
+      state.ratingModal = false;
+      const targetCode = state.ratingTargetCode || (state.activeBooking && state.activeBooking.code);
+      const targetItem = state.historyList.find(h => h.code === targetCode) || state.historyList[0];
+      if (targetItem) {
+        targetItem.isRated = true;
+        targetItem.rating = score;
+      }
+      state.ratingTargetCode = null;
+      showToast(score < 3
+        ? `Ulasan ${score} Bintang terkirim. Tiket QC operasional otomatis dibuat.`
+        : `Terima kasih! Penilaian ${score} Bintang tersimpan.`);
       render();
     }
 
@@ -2441,24 +2829,50 @@
     }
 
     // ==========================================
-    // MODAL WITHDRAW SALDO PEMILIK LAHAN
+    // MODAL WITHDRAW SALDO PEMILIK LAHAN (SOP BAB 12.5: MIN Rp50.000)
     // ==========================================
+    function handleWithdrawSubmit(amount) {
+      if (amount < 50000) {
+        showToast('Minimal pencairan saldo mitra adalah Rp 50.000.');
+        return;
+      }
+      if (state.landownerBalance < amount) {
+        showToast('Saldo garasi tidak mencukupi untuk nominal tersebut.');
+        return;
+      }
+      state.landownerBalance -= amount;
+      state.withdrawModal = false;
+      showToast(`Pencairan ${formatIDR(amount)} ke rekening Pak Budi berhasil diproses!`);
+      render();
+    }
+
     function renderWithdrawModal() {
       if (!state.withdrawModal) return '';
+      const amt = Math.min(state.withdrawAmount || 100000, Math.max(50000, state.landownerBalance));
       return `
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center shadow-xl relative">
             <button onclick="state.withdrawModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
             <h3 class="text-base font-bold text-slate-900">Tarik Saldo Garasi</h3>
-            <p class="text-xs text-slate-500 mt-1">Saldo tersedia: <strong class="text-slate-900">${formatIDR(state.landownerBalance)}</strong></p>
+            <p class="text-xs text-slate-500 mt-1">Saldo tersedia: <strong class="text-emerald-600">${formatIDR(state.landownerBalance)}</strong></p>
             <div class="my-4 text-left space-y-3">
               <div>
                 <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Rekening Bank Pencairan</label>
-                <div class="p-3 bg-slate-100 rounded-xl text-xs font-semibold text-slate-800">BCA 8820-192-331 (User)</div>
+                <div class="p-3 bg-slate-100 rounded-xl text-xs font-semibold text-slate-800">BCA 8820-192-331 (Pak Budi — Garasi Wijaya)</div>
+              </div>
+              <div>
+                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1.5">Pilih Nominal (Min. Rp 50.000)</label>
+                <div class="grid grid-cols-3 gap-1.5">
+                  ${[50000, 100000, state.landownerBalance].map((val, idx) => `
+                    <button type="button" onclick="state.withdrawAmount = ${val}; render();" class="py-2 rounded-xl text-[11px] font-bold border cursor-pointer transition ${state.withdrawAmount === val ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-700 border-slate-200'}">
+                      ${idx === 2 ? 'Semua' : `Rp ${val / 1000}k`}
+                    </button>
+                  `).join('')}
+                </div>
               </div>
             </div>
-            <button onclick="state.landownerBalance -= 100000; state.withdrawModal = false; showToast('Pencairan Rp 100.000 berhasil diproses'); render();" class="h-11 w-full bg-slate-900 hover:bg-black active:scale-95 text-white rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
-              Konfirmasi Tarik Rp 100.000
+            <button onclick="handleWithdrawSubmit(${amt})" class="h-11 w-full bg-slate-900 hover:bg-black active:scale-95 text-white rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
+              Konfirmasi Tarik ${formatIDR(amt)}
             </button>
           </div>
         </div>
@@ -2466,7 +2880,7 @@
     }
 
     // ==========================================
-    // MODAL FAQ / PUSAT BANTUAN
+    // MODAL FAQ / PUSAT BANTUAN (FINAL UAS)
     // ==========================================
     function renderFaqModal() {
       if (!state.faqModal) return '';
@@ -2474,21 +2888,25 @@
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-left shadow-2xl relative max-h-[85vh] overflow-y-auto">
             <button onclick="state.faqModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
-            <h3 class="text-base font-bold text-slate-900">Ketentuan & Alur Penggunaan</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Panduan alur sistem RuangParkir</p>
+            <h3 class="text-base font-bold text-slate-900">Ketentuan &amp; Alur Penggunaan</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Panduan resmi sistem RuangParkir (Final UAS)</p>
 
-            <div class="space-y-3 mt-4 text-xs text-slate-700">
+            <div class="space-y-2.5 mt-4 text-xs text-slate-700">
               <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <div class="font-bold text-slate-900">1. Sistem Pembayaran Deposit</div>
-                <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Pengendara membayar deposit tarif flat 3 jam di muka sebagai jaminan penguncian slot agar mitra terhindar dari risiko pembatalan (no-show).</div>
+                <div class="font-bold text-slate-900">1. Tarif Flat 1–3 Jam + Biaya Layanan Rp 1.000</div>
+                <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Tarif parkir flat 3 jam awal adalah <strong>Motor Rp 3.000</strong> dan <strong>Mobil Rp 8.000</strong>, ditambah <strong>Biaya Layanan Aplikasi Rp 1.000</strong> (100% platform). Tidak ada pengembalian sisa waktu bila keluar &lt; 3 jam.</div>
               </div>
               <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <div class="font-bold text-slate-900">2. Argometer Berjalan di Lapangan</div>
-                <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Argometer waktu baru mulai berdetik ketika juru parkir memindai QR e-tiket saat Anda tiba di lokasi.</div>
+                <div class="font-bold text-slate-900">2. Argometer &amp; Overstay (+Rp 1.000/jam)</div>
+                <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Argometer berjalan saat jukir memindai QR Check-In. Keluar &le; 3 jam = Rp 0 tambahan; keluar &gt; 3 jam dikenakan +Rp 1.000/jam (dibulatkan ke atas).</div>
               </div>
               <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <div class="font-bold text-slate-900">3. Auto-Settlement Overstay</div>
-                <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Jika keluar &le; 3 jam, tidak ada biaya tambahan. Jika &gt; 3 jam, penyesuaian tarif Rp 1.000/jam ekstra dipotong otomatis dari e-wallet.</div>
+                <div class="font-bold text-slate-900">3. Bagi Hasil Adil 40% : 40% : 20%</div>
+                <div class="text-[11px] text-slate-500 mt-1 leading-relaxed">Dari tarif parkir dasar, <strong>40%</strong> masuk ke Pemilik Lahan, <strong>40%</strong> ke Juru Parkir Lokal, dan <strong>20%</strong> ke Platform (ditambah Biaya Layanan Rp 1.000).</div>
+              </div>
+              <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                <div class="font-bold text-emerald-900">4. Paket Langganan RuangPass (Rp 55.000/bln)</div>
+                <div class="text-[11px] text-emerald-800 mt-1 leading-relaxed">Kuota 20x parkir motor (setara Rp 2.750/parkir, bebas biaya layanan). Alokasi: Rp 20.000 Pemilik, Rp 20.000 Jukir, Rp 15.000 Platform.</div>
               </div>
             </div>
 
@@ -2501,42 +2919,227 @@
     }
 
     // ==========================================
-    // MODAL CHECK-OUT & OVERSTAY AUTO-SETTLEMENT (ALUR 7.2 A.4 & C.2)
+    // MODAL RUANGPASS (MONETISASI SEKUNDER 1 - BAB 10.1)
+    // ==========================================
+    function purchaseRuangPass(method) {
+      if (method === 'SALDO') {
+        if (state.walletBalance < RUANGPASS_CONFIG.price) {
+          showToast('Saldo RuangPay kurang untuk RuangPass (Rp 55.000). Silakan Top Up.');
+          state.ruangPassModal = false;
+          state.topUpModal = true;
+          render();
+          return;
+        }
+        state.walletBalance -= RUANGPASS_CONFIG.price;
+      }
+      state.ruangPass = {
+        active: true,
+        remainingQuota: RUANGPASS_CONFIG.totalQuota,
+        totalQuota: RUANGPASS_CONFIG.totalQuota,
+        validUntil: '30 Hari'
+      };
+      state.platformRevenueToday += RUANGPASS_CONFIG.platformMargin;
+      if (state.vehicleType === 'MOTOR') {
+        state.useRuangPassCheckout = true;
+      }
+      state.ruangPassModal = false;
+      showToast('RuangPass aktif! 20 kuota parkir motor siap digunakan.');
+      render();
+    }
+
+    function renderRuangPassModal() {
+      if (!state.ruangPassModal) return '';
+      const active = state.ruangPass.active;
+      return `
+        <div class="fixed inset-0 bg-slate-900/65 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-left shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="state.ruangPassModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
+
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Langganan Bulanan Motor
+            </span>
+            <h3 class="text-lg font-black text-slate-900 mt-1.5">RuangPass — 20x Parkir Motor</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Solusi hemat untuk mahasiswa &amp; pekerja yang rutin parkir di kawasan Suhat/Malang.</p>
+
+            <div class="mt-3.5 p-4 bg-slate-900 text-white rounded-2xl flex items-center justify-between">
+              <div>
+                <div class="text-[10px] text-emerald-400 font-semibold uppercase">Harga Paket / 30 Hari</div>
+                <div class="text-2xl font-black mt-0.5">Rp 55.000</div>
+                <div class="text-[11px] text-slate-300 mt-0.5">Setara <strong>Rp 2.750 / parkir</strong> (hemat Rp 1.250 vs reguler Rp 4.000)</div>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="text-xl font-black text-emerald-400">20x</div>
+                <div class="text-[9px] text-slate-400">Kuota Motor</div>
+              </div>
+            </div>
+
+            ${active ? `
+              <div class="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-emerald-900">Paket RuangPass Anda Aktif!</div>
+                  <div class="text-[10px] text-emerald-700">Berlaku ${state.ruangPass.validUntil} • Bebas Biaya Layanan</div>
+                </div>
+                <span class="text-sm font-black text-emerald-700">${state.ruangPass.remainingQuota} / ${state.ruangPass.totalQuota}</span>
+              </div>
+            ` : ''}
+
+            <div class="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] space-y-1">
+              <div class="font-bold text-slate-700 text-[10px] uppercase">Transparansi Alokasi RuangPass (Bab 10.1):</div>
+              <div class="flex justify-between text-slate-600"><span>• Pool Pemilik Lahan (Rp 1.000/kuota):</span><span class="font-bold text-slate-900">Rp 20.000</span></div>
+              <div class="flex justify-between text-slate-600"><span>• Pool Juru Parkir (Rp 1.000/kuota):</span><span class="font-bold text-slate-900">Rp 20.000</span></div>
+              <div class="flex justify-between text-slate-600"><span>• Margin Bersih Platform:</span><span class="font-bold text-emerald-700">Rp 15.000</span></div>
+            </div>
+
+            <div class="mt-4 space-y-2">
+              <button onclick="purchaseRuangPass('SALDO')" class="h-11 w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
+                ${active ? 'Perpanjang +20 Kuota (Saldo RuangPay)' : 'Aktifkan Sekarang — Saldo RuangPay (Rp 55.000)'}
+              </button>
+              <button onclick="purchaseRuangPass('QRIS')" class="h-10 w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-xl font-bold text-xs transition cursor-pointer">
+                Bayar Instan via QRIS (Rp 55.000)
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // MODAL PROMOSI UMKM SEKITAR (FEATURED MERCHANT - BAB 10.1)
+    // ==========================================
+    function openUmkmModal(umkmId) {
+      state.umkmModal = NEARBY_UMKM.find(u => u.id === umkmId) || NEARBY_UMKM[0];
+      render();
+    }
+
+    function renderUmkmModal() {
+      if (!state.umkmModal) return '';
+      const u = state.umkmModal;
+      return `
+        <div class="fixed inset-0 bg-slate-900/65 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-left shadow-2xl relative">
+            <button onclick="state.umkmModal = null; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900">
+              Featured Merchant • Partner UMKM
+            </span>
+            <h3 class="text-base font-black text-slate-900 mt-2">${u.name}</h3>
+            <p class="text-[11px] text-slate-500">${u.category} • ${u.distance} • ${u.hours}</p>
+
+            <div class="mt-3.5 p-4 bg-amber-50 border border-amber-200 rounded-2xl space-y-1.5">
+              <div class="text-sm font-black text-amber-950">${u.promoTitle}</div>
+              <p class="text-[11px] text-amber-900 leading-relaxed">${u.promoDesc}</p>
+              <div class="pt-2 flex items-center justify-between border-t border-amber-200/80 text-xs">
+                <span class="text-amber-800 text-[10px] font-semibold">Kode Promo Kasir:</span>
+                <span class="font-mono font-black text-slate-900 bg-white px-2.5 py-0.5 rounded-lg border border-amber-300">${u.promoCode}</span>
+              </div>
+            </div>
+
+            <div class="mt-3 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[10px] text-slate-500 leading-relaxed">
+              Slot Promosi UMKM Sekitar Garasi (Rp 100.000/bulan per merchant — 100% mendukung ekosistem lokal Malang).
+            </div>
+
+            <button onclick="state.umkmModal = null; showToast('Kode ${u.promoCode} disalin! Tunjukkan E-Tiket di ${u.name}.'); render();" class="mt-4 h-11 w-full bg-slate-900 hover:bg-black text-white rounded-xl font-bold text-xs cursor-pointer transition">
+              Salin Kode &amp; Gunakan Saat Parkir
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // MODAL HUBUNGI JUKIR (TINDAK LANJUT UJI AWAL TABEL 17)
+    // ==========================================
+    function renderContactJukirModal() {
+      if (!state.contactJukirModal) return '';
+      const ticket = state.activeBooking || {};
+      const jukirName = ticket.jukirName || 'Slamet Riyadi (ID: JK-04)';
+      const jukirPhone = ticket.jukirPhone || '0878-9988-7766';
+      const accessNote = ticket.accessNote || 'Masuk 30m dari Jl. Soekarno Hatta sebelah minimarket, pagar hijau berplang resmi RuangParkir.';
+      return `
+        <div class="fixed inset-0 bg-slate-900/65 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-left shadow-2xl relative">
+            <button onclick="state.contactJukirModal = false; render();" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">${Icons.close}</button>
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
+                ${Icons.userCheck}
+              </div>
+              <div>
+                <span class="text-[10px] font-bold uppercase text-emerald-700">Petugas Lapangan Resmi</span>
+                <h3 class="text-sm font-black text-slate-900">${jukirName}</h3>
+                <div class="text-[11px] text-slate-500 font-mono">${jukirPhone}</div>
+              </div>
+            </div>
+
+            <div class="mt-3.5 p-3 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] text-slate-600 leading-relaxed">
+              <div class="font-bold text-slate-800 text-[10px] uppercase mb-0.5">Patokan Akses Gang / Garasi:</div>
+              ${accessNote}
+            </div>
+
+            <div class="mt-3 space-y-1.5">
+              <div class="text-[10px] font-semibold uppercase text-slate-400">Pesan Cepat 1-Klik:</div>
+              <button onclick="state.contactJukirModal = false; showToast('Pesan terkirim ke ${jukirName.split(' (')[0]}: Saya sudah di depan gang.'); render();" class="w-full p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left text-[11px] font-medium text-slate-700 cursor-pointer transition">
+                "Halo Pak, saya plat ${ticket.plate || 'N 1234 ABC'} sudah di depan gang, mohon diarahkan."
+              </button>
+              <button onclick="state.contactJukirModal = false; showToast('Pesan terkirim ke ${jukirName.split(' (')[0]}: Saya mau keluar parkir.'); render();" class="w-full p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left text-[11px] font-medium text-slate-700 cursor-pointer transition">
+                "Halo Pak, saya mau ambil kendaraan untuk scan keluar."
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mt-4">
+              <button onclick="state.contactJukirModal = false; showToast('Membuka WhatsApp ${jukirPhone}...'); render();" class="h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs cursor-pointer transition flex items-center justify-center gap-1.5">
+                <span>${Icons.phone}</span>
+                <span>WhatsApp</span>
+              </button>
+              <button onclick="state.contactJukirModal = false; showToast('Menghubungi telepon ${jukirPhone}...'); render();" class="h-11 bg-slate-900 hover:bg-black text-white rounded-xl font-bold text-xs cursor-pointer transition flex items-center justify-center gap-1.5">
+                <span>${Icons.phone}</span>
+                <span>Telepon</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // MODAL CHECK-OUT & OVERSTAY AUTO-SETTLEMENT (TABEL 10.1 FINAL UAS)
     // ==========================================
     function renderOverstayModal() {
       if (!state.overstayModal) return '';
 
-      const depositPaid = state.activeBooking ? state.activeBooking.depositPaid : 8000;
+      const booking = state.activeBooking || { vehicle: 'MOBIL', baseParkingTariff: 8000, platformFee: PLATFORM_FEE, usedRuangPass: false };
+      const baseTariff = typeof booking.baseParkingTariff === 'number'
+        ? booking.baseParkingTariff
+        : getBaseDepositPrice(booking.vehicle || 'MOBIL');
+      const platformFeeApplied = typeof booking.platformFee === 'number'
+        ? booking.platformFee
+        : (booking.usedRuangPass ? 0 : PLATFORM_FEE);
+
       let actualDurationText = "1 Jam 45 Menit";
       let fineAmount = 0;
       let isOverstay = false;
-      let statusBadge = "Dalam Kuota Flat (Rp 0 Tambahan)";
-      let explanation = "Durasi aktual 1 jam 45 menit masih berada dalam batas kuota flat 3 jam pertama yang telah terbayar lunas. Tidak ada biaya tambahan yang ditagih.";
+      let statusBadge = "Dalam Kuota Flat 1–3 Jam (Rp 0 Tambahan)";
+      let explanation = "Durasi aktual 1 jam 45 menit masih berada dalam batas kuota flat 3 jam pertama. Tidak ada biaya tambahan yang ditagih.";
 
       if (state.overstayScenario === 'scenario_4h') {
         actualDurationText = "4 Jam";
         fineAmount = 1000;
         isOverstay = true;
         statusBadge = "Kelebihan 1 Jam Ekstra (+Rp 1.000)";
-        explanation = "Durasi aktual 4 jam telah melebihi batas flat 3 jam sebesar 1 jam. Dikenakan penyesuaian tarif Rp 1.000 (dipotong otomatis dari e-wallet).";
+        explanation = "Durasi aktual 4 jam melebihi batas flat 3 jam sebesar 1 jam. Dikenakan penyesuaian tarif Rp 1.000.";
       } else if (state.overstayScenario === 'scenario_5h') {
         actualDurationText = "5 Jam";
         fineAmount = 2000;
         isOverstay = true;
         statusBadge = "Kelebihan 2 Jam Ekstra (+Rp 2.000)";
-        explanation = "Durasi aktual 5 jam telah melebihi batas flat 3 jam sebesar 2 jam. Dikenakan penyesuaian tarif Rp 2.000 (2 jam x Rp 1.000).";
+        explanation = "Durasi aktual 5 jam melebihi batas flat 3 jam sebesar 2 jam (2 jam x Rp 1.000 = Rp 2.000). Cocok dengan simulasi Tabel 10.1.";
       } else if (state.overstayScenario === 'scenario_6h') {
         actualDurationText = "6 Jam";
         fineAmount = 3000;
         isOverstay = true;
         statusBadge = "Kelebihan 3 Jam Ekstra (+Rp 3.000)";
-        explanation = "Durasi aktual 6 jam telah melebihi batas flat 3 jam sebesar 3 jam. Dikenakan penyesuaian tarif Rp 3.000 (3 jam x Rp 1.000).";
+        explanation = "Durasi aktual 6 jam melebihi batas flat 3 jam sebesar 3 jam (3 jam x Rp 1.000 = Rp 3.000).";
       }
 
-      const totalTransaction = depositPaid + fineAmount;
-      const shareLandowner = totalTransaction * 0.4;
-      const shareJukir = totalTransaction * 0.4;
-      const sharePlatform = totalTransaction * 0.2;
+      const split = calculateTransactionBreakdown(baseTariff, fineAmount, platformFeeApplied, !!booking.usedRuangPass);
 
       return `
         <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -2554,7 +3157,7 @@
 
             <!-- Skenario Simulasi Demo Durasi Aktual -->
             <div class="my-3 p-2.5 bg-slate-100 rounded-2xl text-left border border-slate-200">
-              <span class="text-[10px] font-semibold text-slate-500 uppercase block mb-1.5">Simulasi Durasi Aktual (Demo):</span>
+              <span class="text-[10px] font-semibold text-slate-500 uppercase block mb-1.5">Simulasi Durasi Aktual (Demo Tabel 10.1):</span>
               <div class="grid grid-cols-4 gap-1 text-[10px] font-semibold text-center">
                 <button onclick="state.overstayScenario = 'scenario_1h45m'; render();" class="py-1.5 rounded-xl transition cursor-pointer ${state.overstayScenario === 'scenario_1h45m' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-700'}">1j 45m<br><span class="text-[9px] font-normal">Rp 0</span></button>
                 <button onclick="state.overstayScenario = 'scenario_4h'; render();" class="py-1.5 rounded-xl transition cursor-pointer ${state.overstayScenario === 'scenario_4h' ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-700'}">4 Jam<br><span class="text-[9px] font-normal">+1k</span></button>
@@ -2563,63 +3166,91 @@
               </div>
             </div>
 
-            <!-- Rincian Evaluasi Durasi -->
+            <!-- Rincian Evaluasi Durasi & Biaya Layanan Terpisah -->
             <div class="space-y-1.5 text-xs text-left bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-              <div class="flex justify-between"><span class="text-slate-500">Deposit Awal:</span><span class="font-bold text-slate-800">${formatIDR(depositPaid)} (Flat 3 Jam)</span></div>
-              <div class="flex justify-between"><span class="text-slate-500">Durasi Aktual:</span><span class="font-bold text-slate-900">${actualDurationText}</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Tarif Parkir Awal (Flat 1–3 Jam):</span><span class="font-bold text-slate-800">${split.usedRuangPass ? '1 Kuota RuangPass' : formatIDR(split.baseParkingTariff)}</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Durasi Aktual &amp; Overstay:</span><span class="font-bold ${isOverstay ? 'text-amber-600' : 'text-emerald-600'}">${actualDurationText} (${formatIDR(split.overstayFee)})</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Biaya Layanan Aplikasi (Fee):</span><span class="font-bold text-slate-800">${formatIDR(split.platformFee)}</span></div>
               <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
-                <span class="font-bold text-slate-900">Penyesuaian Biaya (Overstay):</span>
-                <span class="font-bold text-sm ${isOverstay ? 'text-amber-600' : 'text-emerald-600'}">${formatIDR(fineAmount)}</span>
+                <span class="font-bold text-slate-900">Total Bayar Pengendara:</span>
+                <span class="font-black text-sm text-slate-900">${split.usedRuangPass ? `1 Kuota + ${formatIDR(split.totalUserPaid)}` : formatIDR(split.totalUserPaid)}</span>
               </div>
             </div>
 
-            <!-- Rincian Bagi Hasil 40:40:20 -->
-            <div class="my-2.5 p-2.5 bg-slate-50 rounded-2xl border border-slate-200 text-left text-[11px] space-y-1">
-              <div class="font-bold text-slate-700 text-[10px] uppercase">Alokasi Bagi Hasil Total (${formatIDR(totalTransaction)}):</div>
-              <div class="flex justify-between text-slate-500"><span>• Pemilik Lahan (40%):</span><span class="font-bold text-slate-800">${formatIDR(shareLandowner)}</span></div>
-              <div class="flex justify-between text-slate-500"><span>• Mitra Jukir (40%):</span><span class="font-bold text-slate-800">${formatIDR(shareJukir)}</span></div>
-              <div class="flex justify-between text-slate-500"><span>• Platform RuangParkir (20%):</span><span class="font-bold text-slate-800">${formatIDR(sharePlatform)}</span></div>
+            <!-- Rincian Bagi Hasil 40:40:20 + Fee Rp1.000 (100% Sesuai Tabel 10.1) -->
+            <div class="my-2.5 p-3 bg-emerald-50/70 rounded-2xl border border-emerald-200 text-left text-[11px] space-y-1">
+              <div class="font-bold text-emerald-950 text-[10px] uppercase">
+                ${split.usedRuangPass
+          ? 'Alokasi RuangPass (Rp 1k/mitra) + Overstay:'
+          : `Bagi Hasil 40:40:20 (${formatIDR(split.totalParkingTariff)}) + Fee (${formatIDR(split.platformFee)}):`}
+              </div>
+              <div class="flex justify-between text-slate-700"><span>• Pemilik Lahan (40% tarif):</span><span class="font-bold text-slate-900">${formatIDR(split.shareLandowner)}</span></div>
+              <div class="flex justify-between text-slate-700"><span>• Mitra Jukir (40% tarif):</span><span class="font-bold text-slate-900">${formatIDR(split.shareJukir)}</span></div>
+              <div class="flex justify-between text-emerald-900"><span>• Platform (${split.usedRuangPass ? 'Margin di muka + 20% ovs' : `20% ${formatIDR(split.platformCommission)} + Fee ${formatIDR(split.platformFee)}`}):</span><span class="font-black text-emerald-800">${formatIDR(split.sharePlatformTotal)}</span></div>
             </div>
 
             <p class="my-2 text-[11px] text-slate-500 text-left leading-relaxed">
               ${explanation}
             </p>
 
-            <button onclick="handleCheckoutSettlement(${fineAmount}, ${totalTransaction}, '${actualDurationText}')" class="h-14 min-h-[52px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2">
-              <span>Konfirmasi Selesai (${isOverstay ? `Auto-Debit ${formatIDR(fineAmount)}` : 'Lunas Rp 0 Tambahan'})</span>
+            <button onclick="handleCheckoutSettlement(${fineAmount}, '${actualDurationText}')" class="h-14 min-h-[52px] w-full bg-slate-900 hover:bg-black active:scale-[0.98] text-white rounded-2xl font-bold text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2">
+              <span>Konfirmasi Selesai (${isOverstay ? `Bayar Overstay ${formatIDR(fineAmount)}` : 'Lunas Rp 0 Tambahan'})</span>
             </button>
           </div>
         </div>
       `;
     }
 
-    function handleCheckoutSettlement(fineAmount, totalTransaction, actualDurationText) {
-      if (fineAmount > 0) {
+    function handleCheckoutSettlement(fineAmount, actualDurationText) {
+      const booking = state.activeBooking || { vehicle: 'MOBIL', baseParkingTariff: 8000, platformFee: PLATFORM_FEE, usedRuangPass: false, paymentMethod: 'SALDO', plate: 'N 1234 ABC', code: 'RP-88291', spotId: '1' };
+      const baseTariff = typeof booking.baseParkingTariff === 'number'
+        ? booking.baseParkingTariff
+        : getBaseDepositPrice(booking.vehicle || 'MOBIL');
+      const platformFeeApplied = typeof booking.platformFee === 'number'
+        ? booking.platformFee
+        : (booking.usedRuangPass ? 0 : PLATFORM_FEE);
+
+      if (fineAmount > 0 && booking.paymentMethod === 'SALDO') {
+        if (state.walletBalance < fineAmount) {
+          showToast('Saldo RuangPay kurang untuk overstay. Silakan Top Up terlebih dahulu.');
+          state.overstayModal = false;
+          state.topUpModal = true;
+          render();
+          return;
+        }
         state.walletBalance -= fineAmount;
       }
 
-      const landownerShare = totalTransaction * 0.4;
-      const jukirShare = totalTransaction * 0.4;
+      const split = calculateTransactionBreakdown(baseTariff, fineAmount, platformFeeApplied, !!booking.usedRuangPass);
 
-      state.landownerBalance += Math.round(landownerShare);
-      state.todayRevenue += Math.round(landownerShare);
-      state.attendantEarningsToday += Math.round(jukirShare);
+      state.landownerBalance += split.shareLandowner;
+      state.todayRevenue += split.shareLandowner;
+      state.attendantEarningsToday += split.shareJukir;
+      state.platformRevenueToday += split.sharePlatformTotal;
       state.totalVehiclesManagedToday += 1;
 
-      const plate = state.activeBooking.plate;
-      state.parkedVehicles = state.parkedVehicles.filter(v => v.plate !== plate);
+      const sp = SPOTS.find(s => s.id === booking.spotId) || SPOTS[0];
+      if (sp && sp.availableSlots < sp.totalSlots) {
+        sp.availableSlots += 1;
+      }
+
+      state.parkedVehicles = state.parkedVehicles.filter(v => v.plate !== booking.plate);
 
       state.ticketStatus = 'FINISHED';
       state.overstayModal = false;
+      state.ratingTargetCode = booking.code;
 
-      if (state.historyList[0]) {
-        state.historyList[0].status = 'Selesai';
-        state.historyList[0].duration = `${actualDurationText} (Aktual)`;
-        state.historyList[0].overstay = fineAmount;
-        state.historyList[0].cost = totalTransaction;
+      const histItem = state.historyList.find(h => h.code === booking.code) || state.historyList[0];
+      if (histItem) {
+        histItem.status = 'Selesai';
+        histItem.duration = `${actualDurationText} (Aktual)`;
+        histItem.overstay = fineAmount;
+        histItem.cost = split.totalUserPaid;
       }
 
-      showToast(`Pembayaran selesai. Bagi hasil 40:40:20 berhasil disalurkan.`);
+      showToast(split.usedRuangPass
+        ? `Check-out RuangPass selesai. Alokasi mitra Rp 1.000/pihak tersalurkan.`
+        : `Selesai! Bagi hasil 40:40:20 + Fee ${formatIDR(split.platformFee)} tersalurkan.`);
       state.ratingModal = true;
       setScreen('TICKET');
     }
@@ -2676,11 +3307,14 @@
         ${renderGlobalHeader()}
         ${renderToast()}
         ${renderRatingModal()}
+        ${renderRuangPassModal()}
+        ${renderUmkmModal()}
+        ${renderContactJukirModal()}
         ${content}
       `;
 
-      // Update phone status bar & gesture bar theme
-      const isDark = ['ATTENDANT', 'ATTENDANT_LOGS'].includes(state.currentScreen);
+      // Update phone status bar & gesture bar theme (phone-screen top bezel is light slate-50)
+      const isDark = false;
       const statusBar = document.getElementById('phone-status-bar');
       const homeBar = document.getElementById('phone-home-indicator');
       if (statusBar && statusBar.classList) {
